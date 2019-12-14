@@ -2,6 +2,7 @@
 
 Particles system library for THREE.js with a really lame name!
 
+Live demo can be found [here](https://ronenness.github.io/partykals/demo/index.html).
 ![Demo Screenshot](demo/screenshot.png)
 
 ## Why
