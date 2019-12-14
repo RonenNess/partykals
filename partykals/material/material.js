@@ -3,6 +3,7 @@
  * Author: Ronen Ness.
  * Since: 2019.
  */
+const THREE = require('./../_three');
 const VertexShaderCode = require('./shaders/vertex');
 const FragmentShaderCode = require('./shaders/fragment');
 

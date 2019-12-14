@@ -1,4 +1,8 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Partykals = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+// This file is just a wrapper to get THREE base module.
+// If its not in your global space, edit this file accordingly.
+module.exports = window.THREE;
+},{}],2:[function(require,module,exports){
 /**
  * Implement an emitter class to generate particles.
  * Author: Ronen Ness.
@@ -64,7 +68,7 @@ class Emitter
 
 // export the emitter class
 module.exports = Emitter;
-},{"./utils":15}],2:[function(require,module,exports){
+},{"./utils":15}],3:[function(require,module,exports){
 /**
  * Module main entry point.
  * Author: Ronen Ness.
@@ -77,12 +81,13 @@ module.exports = {
     Utils: require('./utils'),
     Randomizers: require('./randomizers'),
 }
-},{"./emitter":1,"./particle":6,"./particles_system":7,"./randomizers":10,"./utils":15}],3:[function(require,module,exports){
+},{"./emitter":2,"./particle":7,"./particles_system":8,"./randomizers":11,"./utils":15}],4:[function(require,module,exports){
 /**
  * Create the shader material.
  * Author: Ronen Ness.
  * Since: 2019.
  */
+const THREE = require('./../_three');
 const VertexShaderCode = require('./shaders/vertex');
 const FragmentShaderCode = require('./shaders/fragment');
 
@@ -167,7 +172,7 @@ class ParticlesMaterial
 }
 
 module.exports = ParticlesMaterial;
-},{"./shaders/fragment":4,"./shaders/vertex":5}],4:[function(require,module,exports){
+},{"./../_three":1,"./shaders/fragment":5,"./shaders/vertex":6}],5:[function(require,module,exports){
 /**
  * Implement fragment shader for our particles.
  * Author: Ronen Ness.
@@ -233,7 +238,7 @@ void main()
 }
 `;
 module.exports = code;
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /**
  * Implement vertex shader for our particles.
  * Author: Ronen Ness.
@@ -307,13 +312,13 @@ void main()
 }
 `;
 module.exports = code;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /**
  * Implement a single particle in the particles system.
  * Author: Ronen Ness.
  * Since: 2019.
 */
-const THREE = require('./three');
+const THREE = require('./_three');
 const Utils = require('./utils')
 
 
@@ -560,13 +565,13 @@ function getConstOrRandomColor(constValOrRandomizer, returnNullIfUndefined)
 
 
 module.exports = Particle;
-},{"./three":14,"./utils":15}],7:[function(require,module,exports){
+},{"./_three":1,"./utils":15}],8:[function(require,module,exports){
 /**
  * Implement basic particles system.
  * Author: Ronen Ness.
  * Since: 2019.
 */
-const THREE = require('./three');
+const THREE = require('./_three');
 const Particle = require('./particle');
 const ParticlesMaterial = require('./material/material');
 
@@ -1040,13 +1045,13 @@ class ParticlesSystem
 
 // export the particles system
 module.exports = ParticlesSystem;
-},{"./material/material":3,"./particle":6,"./three":14}],8:[function(require,module,exports){
+},{"./_three":1,"./material/material":4,"./particle":7}],9:[function(require,module,exports){
 /**
  * Generate vectors within a 3d box.
  * Author: Ronen Ness.
  * Since: 2019.
 */
-const THREE = require('./../three');
+const THREE = require('./../_three');
 const Randomizer = require('./randomizer');
 const Utils = require('../utils');
 
@@ -1076,13 +1081,13 @@ class BoxRandomizer extends Randomizer
 
 // export the randomizer class
 module.exports = BoxRandomizer;
-},{"../utils":15,"./../three":14,"./randomizer":12}],9:[function(require,module,exports){
+},{"../utils":15,"./../_three":1,"./randomizer":13}],10:[function(require,module,exports){
 /**
  * Generate vectors within a 3d box.
  * Author: Ronen Ness.
  * Since: 2019.
 */
-const THREE = require('./../three');
+const THREE = require('./../_three');
 const Randomizer = require('./randomizer');
 const Utils = require('../utils');
 
@@ -1112,7 +1117,7 @@ class ColorsRandomizer extends Randomizer
 
 // export the randomizer class
 module.exports = ColorsRandomizer;
-},{"../utils":15,"./../three":14,"./randomizer":12}],10:[function(require,module,exports){
+},{"../utils":15,"./../_three":1,"./randomizer":13}],11:[function(require,module,exports){
 /**
  * Module main entry point.
  * Author: Ronen Ness.
@@ -1126,7 +1131,7 @@ module.exports = {
     ColorsRandomizer: require('./colors_randomizer'),
     MinMaxRandomizer: require('./minmax_randomizer'),
 }
-},{"./box_randomizer":8,"./colors_randomizer":9,"./minmax_randomizer":11,"./randomizer":12,"./sphere_randomizer":13}],11:[function(require,module,exports){
+},{"./box_randomizer":9,"./colors_randomizer":10,"./minmax_randomizer":12,"./randomizer":13,"./sphere_randomizer":14}],12:[function(require,module,exports){
 /**
  * Generate numbers between min and max.
  * Author: Ronen Ness.
@@ -1162,7 +1167,7 @@ class MinMaxRandomizer extends Randomizer
 
 // export the randomizer class
 module.exports = MinMaxRandomizer;
-},{"../utils":15,"./randomizer":12}],12:[function(require,module,exports){
+},{"../utils":15,"./randomizer":13}],13:[function(require,module,exports){
 /**
  * Define interface for a helper class to generate random vectors and colors.
  * Author: Ronen Ness.
@@ -1186,13 +1191,13 @@ class Randomizer
 
 // export the base class
 module.exports = Randomizer;
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /**
  * Generate vectors within a 3d sphere.
  * Author: Ronen Ness.
  * Since: 2019.
 */
-const THREE = require('./../three');
+const THREE = require('../_three');
 const Randomizer = require('./randomizer');
 const Utils = require('../utils');
 
@@ -1244,17 +1249,13 @@ class SphereRandomizer extends Randomizer
 
 // export the randomizer class
 module.exports = SphereRandomizer;
-},{"../utils":15,"./../three":14,"./randomizer":12}],14:[function(require,module,exports){
-// This file is just a wrapper to get THREE base module.
-// If its not in your global space, edit this file accordingly.
-module.exports = window.THREE;
-},{}],15:[function(require,module,exports){
+},{"../_three":1,"../utils":15,"./randomizer":13}],15:[function(require,module,exports){
 /**
  * Implement a single particle in the particles system.
  * Author: Ronen Ness.
  * Since: 2019.
 */
-const THREE = require('./three');
+const THREE = require('./_three');
 
 module.exports = {
 
@@ -1328,5 +1329,5 @@ module.exports = {
         return (val.generate ? val.generate() : val) || 0;
     },
 };
-},{"./three":14}]},{},[2])(2)
+},{"./_three":1}]},{},[3])(3)
 });

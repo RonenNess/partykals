@@ -3,7 +3,7 @@
  * Author: Ronen Ness.
  * Since: 2019.
 */
-const THREE = require('./three');
+const THREE = require('./_three');
 const Particle = require('./particle');
 const ParticlesMaterial = require('./material/material');
 

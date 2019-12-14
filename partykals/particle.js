@@ -3,7 +3,7 @@
  * Author: Ronen Ness.
  * Since: 2019.
 */
-const THREE = require('./three');
+const THREE = require('./_three');
 const Utils = require('./utils')
 
 
