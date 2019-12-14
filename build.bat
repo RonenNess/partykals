@@ -1,0 +1,1 @@
+browserify partykals/index.js --s Partykals --outfile dist/partykals.js
