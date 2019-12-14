@@ -9,7 +9,7 @@ Live demo can be found [here](https://ronenness.github.io/partykals/demo/index.h
 
 THREE.js provides just the basics to create particles system, but it requires a lot of work to actually have working particles. This is what this library is for.
 
-There are many alternatives and more robust particle systems for THREE.js out there, but at the time of writing these lines (15/12/2019) none of them works with latest THREE version (r111).
+There are many alternatives and more robust particle systems for THREE.js out there, but at the time of writing these lines (15/12/2019) none of the ones I found works with latest THREE version (r111).
 
 # Usage
 
