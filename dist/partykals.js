@@ -155,7 +155,7 @@ class ParticlesMaterial
             blending:       options.blending,
             vertexColors:   THREE.VertexColors,
             depthWrite:     Boolean(options.depthWrite),
-            depthTest:     Boolean(options.depthTest),
+            depthTest:      Boolean(options.depthTest),
         });
         this.material = shaderMaterial;
     }
@@ -348,22 +348,6 @@ class Particle
         // reset particle age and if alive
         this.age = 0;
         this.finished = false;
-        
-        // should colorize particle?
-        this.colorize = Boolean(options.colorize);
-        this.color = this.startColor = this.endColor = null;
-        if (this.colorize) 
-        {
-            // const color throughout particle's life?
-            if (options.color) {
-                this.color = getConstOrRandomColor(options.color);
-            }
-            // shifting color?
-            else {
-                this.startColor = getConstOrRandomColor(options.startColor);
-                this.endColor = getConstOrRandomColor(options.endColor);
-            }
-        }
 
         // store gravity force
         this.gravity = options.gravity;
@@ -379,10 +363,11 @@ class Particle
         this.position = getConstOrRandomVector(options.offset);
 
         // set particle's ttl
-        this.ttl = Utils.getRandomWithSpread(options.ttl || 1, options.ttlExtra);
+        this.ttl = Utils.getRandomWithSpread(options.ttl || 1, options.ttlExtra) || 1;
 
         // set per-particle alpha
         this.alpha = this.startAlpha = this.endAlpha = null;
+        this.startAlphaChangeAt = (options.startAlphaChangeAt || 0) / this.ttl;
         if (options.fade) 
         {
             // const alpha throughout particle's life?
@@ -395,17 +380,27 @@ class Particle
                 this.endAlpha = Utils.randomizerOrValue(options.endAlpha);
             }
         } 
-
-        // set per-particle rotation
-        this.rotation = this.rotationSpeed = null;
-        if (options.rotating) 
+   
+        // set per-particle coloring
+        this.colorize = Boolean(options.colorize);
+        this.color = this.startColor = this.endColor = null;
+        this.startColorChangeAt = (options.startColorChangeAt || 0) / this.ttl;
+        if (this.colorize) 
         {
-            this.rotation = Utils.randomizerOrValue(options.rotation || 0);
-            this.rotationSpeed = Utils.randomizerOrValue(options.rotationSpeed || 0);
-        } 
+            // const color throughout particle's life?
+            if (options.color) {
+                this.color = getConstOrRandomColor(options.color);
+            }
+            // shifting color?
+            else {
+                this.startColor = getConstOrRandomColor(options.startColor);
+                this.endColor = getConstOrRandomColor(options.endColor);
+            }
+        }
 
         // set per-particle size
         this.size = this.startSize = this.endSize = null;
+        this.startSizeChangeAt = (options.startSizeChangeAt || 0) / this.ttl;
         if (options.scaling) 
         {       
             // const size throughout particle's life?
@@ -418,6 +413,14 @@ class Particle
                 this.endSize = Utils.randomizerOrValue(options.endSize);
             }
         } 
+        
+        // set per-particle rotation
+        this.rotation = this.rotationSpeed = null;
+        if (options.rotating) 
+        {
+            this.rotation = Utils.randomizerOrValue(options.rotation || 0);
+            this.rotationSpeed = Utils.randomizerOrValue(options.rotationSpeed || 0);
+        }
 
         // used to keep constant world position
         this.startWorldPosition = null;
@@ -455,18 +458,18 @@ class Particle
             }
 
             // set constant alpha
-            if (this.alpha !== null) {
-                this.system.setAlpha(index, this.alpha);
+            if (this.alpha !== null || this.startAlpha !== null) {
+                this.system.setAlpha(index, this.alpha || this.startAlpha);
             }
 
             // set constant color
-            if (this.color !== null) {
-                this.system.setColor(index, this.color);
+            if (this.color !== null || this.startColor !== null) {
+                this.system.setColor(index, this.color || this.startColor);
             }
 
             // set constant size
-            if (this.size !== null) {
-                this.system.setSize(index, this.size);
+            if (this.size !== null || this.startSize !== null) {
+                this.system.setSize(index, this.size || this.startSize);
             }
 
             // set start rotation
@@ -474,25 +477,31 @@ class Particle
                 this.system.setRotation(index, this.rotation);
             }
         }
-        
+        // do normal updates
+        else
+        {
+            // set animated color
+            if (this.startColor && this.age >= this.startColorChangeAt) {
+                this.system.setColor(index, Utils.lerpColors(this.startColor, this.endColor, 
+                    this.startColorChangeAt ? ((this.age - this.startColorChangeAt) / (1-this.startColorChangeAt)) : this.age));
+            }
+
+            // set animated alpha
+            if (this.startAlpha != null && this.age >= this.startAlphaChangeAt) {
+                this.system.setAlpha(index, Utils.lerp(this.startAlpha, this.endAlpha, 
+                    this.startAlphaChangeAt ? ((this.age - this.startAlphaChangeAt) / (1-this.startAlphaChangeAt)) : this.age));
+            }
+
+            // set animated size
+            if (this.startSize != null && this.age >= this.startSizeChangeAt) {
+                this.system.setSize(index, Utils.lerp(this.startSize, this.endSize, 
+                    this.startSizeChangeAt ? ((this.age - this.startSizeChangeAt) / (1-this.startSizeChangeAt)) : this.age));
+            }
+        }
+
         // add gravity force
         if (this.gravity) {
             this.velocity.y += this.gravity * deltaTime;
-        }
-
-        // set animated color
-        if (this.startColor) {
-            this.system.setColor(index, Utils.lerpColors(this.startColor, this.endColor, this.age));
-        }
-
-        // set animated alpha
-        if (this.startAlpha != null) {
-            this.system.setAlpha(index, Utils.lerp(this.startAlpha, this.endAlpha, this.age));
-        }
-
-        // set animated size
-        if (this.startSize != null) {
-            this.system.setSize(index, Utils.lerp(this.startSize, this.endSize, this.age));
         }
 
         // set animated rotation
@@ -597,16 +606,19 @@ class ParticlesSystem
      * @param {Boolean} options.particles.alpha Per-particle constant alpha; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random values.
      * @param {Number} options.particles.startAlpha Particles starting opacity; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random values.
      * @param {Number} options.particles.endAlpha Particles ending opacity; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random values.
+     * @param {Number} options.particles.startAlphaChangeAt Will only start shifting alpha when age is over this value; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random values.
      * 
      * // PARTICLES GROWING / SIZE
      * @param {Number} options.particles.size Per-particle constant size; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random values.
      * @param {Number} options.particles.startSize Particles starting size; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random values.
      * @param {Number} options.particles.endSize Particles ending size; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random values.
+     * @param {Number} options.particles.startSizeChangeAt Will only start shifting size when age is over this value; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random values.
      * 
      * // PARTICLES COLORING
      * @param {THREE.Color} options.particles.color Per-particle constant color; either a constant value (THREE.Color) or a Partykals.Randomizers.Randomizer instance to create random values.
      * @param {THREE.Color} options.particles.startColor Starting color min value; either a constant value (THREE.Color) or a Partykals.Randomizers.Randomizer instance to create random values.
      * @param {THREE.Color} options.particles.endColor Ending color min value; either a constant value (THREE.Color) or a Partykals.Randomizers.Randomizer instance to create random values.
+     * @param {Number} options.particles.startColorChangeAt Will only start shifting color when age is over this value; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random values.
      * 
      * // PARTICLES ACCELERATION 
      * @param {THREE.Vector3} options.particles.acceleration Particles acceleration; either a constant value (THREE.Vector3) or a Partykals.Randomizers.Randomizer instance to create random values.
@@ -720,7 +732,7 @@ class ParticlesSystem
         }
 
         // has transparency?
-        var isTransparent = (blending != "opaque");
+        var isTransparent = (blending !== "opaque");
 
         // create the particle geometry
         this.particlesGeometry = new THREE.BufferGeometry();
@@ -737,7 +749,7 @@ class ParticlesSystem
             transparent: isTransparent,
             map: options.particles.texture,
             perParticleColor: Boolean(options.particles.colorize),
-            alphaTest: blending === "blend" && defined(options.particles.texture),
+            alphaTest: (blending === "blend") && defined(options.particles.texture),
             constSize: defined(options.particles.globalSize) ? options.particles.globalSize : null,
             depthWrite: defined(options.system.depthWrite) ? options.system.depthWrite : true,
             depthTest: defined(options.system.depthTest) ? options.system.depthTest : true,

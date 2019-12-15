@@ -71,7 +71,7 @@ class ParticlesMaterial
             blending:       options.blending,
             vertexColors:   THREE.VertexColors,
             depthWrite:     Boolean(options.depthWrite),
-            depthTest:     Boolean(options.depthTest),
+            depthTest:      Boolean(options.depthTest),
         });
         this.material = shaderMaterial;
     }

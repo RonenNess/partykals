@@ -48,12 +48,16 @@ function init() {
         container: scene,
         particles: {
             globalSize: 5,
-            ttl: 10,
+            ttl: 12,
             velocity: new Partykals.Randomizers.SphereRandomizer(12.5),
             velocityBonus: new THREE.Vector3(0, 25, 0),
             gravity: -10,
+            startAlpha: 1,
+            endAlpha: 0,
             startColor: new Partykals.Randomizers.ColorsRandomizer(),
             endColor: new Partykals.Randomizers.ColorsRandomizer(),
+            startAlphaChangeAt: 0,
+            blending: "blend",
             onUpdate: (particle) => {
                 floorY = -10;
                 if (particle.position.y < floorY) {
@@ -71,7 +75,7 @@ function init() {
                 onInterval: new Partykals.Randomizers.MinMaxRandomizer(0, 5),
                 interval: new Partykals.Randomizers.MinMaxRandomizer(0, 0.25),
             }),
-            speed: 1,
+            speed: 1.5,
         }
     }), 0);
 
@@ -144,8 +148,8 @@ function init() {
         particles: {
             startAlpha: 1,
             endAlpha: 0,
-            startSize: 3.5,
-            endSize: 85,
+            startSize: new Partykals.Randomizers.MinMaxRandomizer(1, 5),
+            endSize: new Partykals.Randomizers.MinMaxRandomizer(50, 150),
             ttl: 2,
             velocity: new Partykals.Randomizers.SphereRandomizer(55, 35),
             startColor: new Partykals.Randomizers.ColorsRandomizer(new THREE.Color(0.5, 0.2, 0), new THREE.Color(1, 0.5, 0)),
@@ -153,7 +157,7 @@ function init() {
             blending: "additive",
             worldPosition: true,
             rotation: new Partykals.Randomizers.MinMaxRandomizer(0, 6.28319),
-            rotationSpeed: new Partykals.Randomizers.MinMaxRandomizer(2, 10),
+            rotationSpeed: new Partykals.Randomizers.MinMaxRandomizer(-10, 10),
             texture: texture,
         },
         system: {
