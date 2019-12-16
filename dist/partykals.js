@@ -500,7 +500,7 @@ class Particle
         }
 
         // add gravity force
-        if (this.gravity) {
+        if (this.gravity && this.velocity) {
             this.velocity.y += this.gravity * deltaTime;
         }
 
@@ -511,9 +511,11 @@ class Particle
         }
 
         // update position
-        this.position.x += this.velocity.x * deltaTime;
-        this.position.y += this.velocity.y * deltaTime;
-        this.position.z += this.velocity.z * deltaTime;
+        if (this.velocity) {
+            this.position.x += this.velocity.x * deltaTime;
+            this.position.y += this.velocity.y * deltaTime;
+            this.position.z += this.velocity.z * deltaTime;
+        }
         var positionToSet = this.position;
 
         // to maintain world position
@@ -528,7 +530,7 @@ class Particle
         this.system.setPosition(index, positionToSet);
 
         // update velocity
-        if (this.acceleration) {
+        if (this.acceleration && this.velocity) {
             this.velocity.x += this.acceleration.x * deltaTime;
             this.velocity.y += this.acceleration.y * deltaTime;
             this.velocity.z += this.acceleration.z * deltaTime;
@@ -547,6 +549,14 @@ class Particle
             this.age = 1;
             this.finished = true;
         }
+    }
+
+    /**
+     * Get particle's world position.
+     */
+    get worldPosition()
+    {
+        return this.system.getWorldPosition().add(this.position);
     }
 }
 
