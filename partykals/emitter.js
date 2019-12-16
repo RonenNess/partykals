@@ -39,6 +39,14 @@ class Emitter
         if (this.age === 0 && this.options.onSpawnBurst) {
             ret += randomizerOrValue(this.options.onSpawnBurst);
         }
+        
+        // update age
+        this.age += deltaTime;
+
+        // no interval emitting? skip
+        if (!this.options.onInterval) {
+            return ret;
+        }
 
         // check if inverval expired
         this.timeToSpawn -= deltaTime;
@@ -46,9 +54,6 @@ class Emitter
             this.timeToSpawn = randomizerOrValue(this.options.interval);
             ret += randomizerOrValue(this.options.onInterval);
         }
-
-        // update age
-        this.age += deltaTime;
 
         // do detoration
         if (this.options.detoretingMinTtl && system.ttl < this.options.detoretingMinTtl) {
