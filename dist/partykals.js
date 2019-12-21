@@ -846,9 +846,17 @@ class ParticlesSystem
     }
 
     /**
-     * Did finish emitting?
+     * Return true when ttl is expired and there are no more alive particles in system.
      */
     get finished()
+    {
+        return this.ttlExpired && (this.particlesCount === 0);
+    }
+
+    /**
+     * Get if this system's ttl is expired.
+     */
+    get ttlExpired()
     {
         return (this.ttl !== undefined) && (this.ttl <= 0);
     }
@@ -936,6 +944,37 @@ class ParticlesSystem
     }
 
     /**
+     * Get how many particles this system currently shows.
+     */
+    get particlesCount()
+    {
+        return this._aliveParticles.length;
+    }
+
+    /**
+     * Get max particles count.
+     */
+    get maxParticlesCount()
+    {
+        return this._aliveParticles.length + this._deadParticles.length;
+    }
+
+    /**
+     * If ttl is expired and there are no more alive particles, remove system and dispose it.
+     * @returns True if removed & disposed, false if still alive.
+     */
+    removeAndDisposeIfFinished()
+    {
+        if (this.finished)
+        {
+            this.removeSelf();
+            this.dispose();
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Update particles system.
      */
     update(deltaTime)
@@ -967,8 +1006,8 @@ class ParticlesSystem
         // to check if number of particles changed
         var prevParticlesCount = this._aliveParticles.length;
 
-        // generate particles (unless finished)
-        if (!this.finished) {
+        // generate particles (unless ttl expired)
+        if (!this.ttlExpired) {
             for (var i = 0; i < this._emitters.length; ++i) {
                 var toSpawn = this._emitters[i].update(deltaTime, this);
                 if (toSpawn) { 

@@ -1,0 +1,26 @@
+{
+  "name": "partykals",
+  "version": "1.0.1",
+  "homepage": "https://github.com/RonenNess/partykals/",
+  "authors": [
+    "Ronen Ness <ronenness@gmail.com>"
+  ],
+  "description": "Easy-to-use Particle Systems for THREE.js.",
+  "keywords": [
+    "webgl",
+	"three",
+	"threejs",
+	"particle system",
+	"particles",
+    "effects"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "main": "dist/partykals.js"
+}

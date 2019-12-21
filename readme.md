@@ -186,6 +186,18 @@ Randomizers are classes that generate random numbers, vectors, colors and more. 
 
 For more info, check out the randomizers under `randomizers/` folder, or under `Partykals.Randomizers` namespace.
 
+## Changes
+
+### 1.0.0.1
+
+- Added bower package.
+- Added npm package.
+- Added dispose method.
+- Changed the logic of 'finished' flag - will now consider systems finished when ttl expired and there are no particles left.
+- Added some useful API functions and getters, like getting particles count or remove & dispose if done.
+- Added startAlphaChangeAt, startSizeChangeAt, and startColorChangeAt to only start transitions after some time passes.
+- Some minor bugfixes
+
 ## License
 
 `Partykals` is released under the permissive MIT license and is absolutely free for any (legal) purpose, commerical included.
