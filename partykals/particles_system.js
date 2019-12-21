@@ -246,6 +246,14 @@ class ParticlesSystem
     }
 
     /**
+     * Dispose the entire system.
+     */
+    dispose()
+    {
+        this.particlesGeometry.dispose();
+    }
+
+    /**
      * Did finish emitting?
      */
     get finished()
