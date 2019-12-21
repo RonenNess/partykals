@@ -188,7 +188,7 @@ For more info, check out the randomizers under `randomizers/` folder, or under `
 
 ## Changes
 
-### 1.0.0.1
+### 1.0.1
 
 - Added bower package.
 - Added npm package.
