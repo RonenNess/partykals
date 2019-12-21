@@ -11,6 +11,14 @@ THREE.js provides just the basics to create particles system, but it requires a 
 
 There are many alternatives and more robust particle systems for THREE.js out there, but at the time of writing these lines (15/12/2019) none of the ones I found works with latest THREE version (r111).
 
+# Setup
+
+To start using Partykals either include script `dist/partykals.js` in your HTML pages, or import via NPM:
+
+`npm install partykals`
+
+`Partykals` will try to find THREE.js either in global space (under `window` object) or by using require('three'). One of these options must be available in order for it to work.
+
 # Usage
 
 To create a new particles system:
