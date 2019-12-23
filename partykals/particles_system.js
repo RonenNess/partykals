@@ -251,6 +251,7 @@ class ParticlesSystem
     dispose()
     {
         this.particlesGeometry.dispose();
+        this.material.dispose();
     }
 
     /**
@@ -519,7 +520,9 @@ class ParticlesSystem
      */
     removeSelf() 
     {
-        if (this.particleSystem.parent) { this.particleSystem.parent.remove(this.particleSystem); }
+        if (this.particleSystem.parent) { 
+            this.particleSystem.parent.remove(this.particleSystem); 
+        }
     };
 }
 

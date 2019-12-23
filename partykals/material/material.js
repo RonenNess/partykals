@@ -75,6 +75,14 @@ class ParticlesMaterial
         });
         this.material = shaderMaterial;
     }
+
+    /**
+     * Dispose the material.
+     */
+    dispose()
+    {
+        this.material.dispose();
+    }
     
     /**
      * Set unified scale for all particles.

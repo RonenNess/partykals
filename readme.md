@@ -206,6 +206,10 @@ For more info, check out the randomizers under `randomizers/` folder, or under `
 - Added startAlphaChangeAt, startSizeChangeAt, and startColorChangeAt to only start transitions after some time passes.
 - Some minor bugfixes
 
+### 1.0.2 [WIP]
+
+- Fixed `dispose` to also dispose the material.
+
 ## License
 
 `Partykals` is released under the permissive MIT license and is absolutely free for any (legal) purpose, commerical included.
