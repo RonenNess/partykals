@@ -3,7 +3,7 @@
  * Author: Ronen Ness.
  * Since: 2019.
  */
-var code = `
+export default`
 // attributes we get from geometry
 attribute float alpha;
 
@@ -70,4 +70,3 @@ void main()
     #endif
 }
 `;
-module.exports = code;

@@ -3,7 +3,7 @@
  * Author: Ronen Ness.
  * Since: 2019.
  */
-var code = `
+export default `
 // material uniforms
 uniform vec3 globalColor;
 
@@ -62,4 +62,3 @@ void main()
     #endif
 }
 `;
-module.exports = code;

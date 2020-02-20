@@ -1,27 +1,52 @@
 {
-  "name": "partykals",
+  "name": "mage-engine.particles",
   "version": "1.0.1",
   "description": "Easy-to-use Particle Systems for THREE.js.",
-  "main": "dist/partykals.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": ""
+    "test": "echo test",
+    "prebuild": "rimraf dist/",
+    "build": "rollup -c",
+    "preversion": "npm test",
+    "version": "npm run build",
+    "postversion": "git push --no-verify && git push --tags --no-verify"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RonenNess/partykals.git"
+    "url": "git+https://github.com/MageStudio/partykals.git"
   },
   "keywords": [
     "webgl",
-	"three",
-	"threejs",
-	"particle system",
-	"particles",
+    "three",
+    "threejs",
+    "particle system",
+    "particles",
     "effects"
   ],
   "author": "Ronen Ness",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/RonenNess/partykals/issues"
+    "url": "https://github.com/MageStudio/partykals/issues"
   },
-  "homepage": "https://github.com/RonenNess/partykals/"
+  "homepage": "https://github.com/MageStudio/partykals/",
+  "devDependencies": {
+    "@babel/cli": "7.5.0",
+    "@babel/core": "7.5.0",
+    "@babel/node": "7.6.3",
+    "@babel/plugin-proposal-class-properties": "7.5.0",
+    "@babel/polyfill": "7.4.4",
+    "@babel/preset-env": "7.5.0",
+    "@babel/register": "7.4.4",
+    "@rollup/plugin-json": "^4.0.1",
+    "babel-loader": "8.0.6",
+    "rimraf": "3.0.0",
+    "rollup": "1.26.3",
+    "rollup-plugin-babel": "4.3.3",
+    "rollup-plugin-commonjs": "10.1.0",
+    "rollup-plugin-node-resolve": "5.2.0",
+    "rollup-plugin-terser": "5.2.0"
+  },
+  "peerDependencies": {
+    "three": "0.112.0"
+  }
 }

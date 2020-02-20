@@ -3,31 +3,30 @@
  * Author: Ronen Ness.
  * Since: 2019.
 */
-const THREE = require('./_three');
-const Utils = require('./utils')
-
+import * as Utils from './utils';
+import {
+    Vector3,
+    Color
+} from 'three';
 
 /**
  * A single particle metadata in the particles system.
  * We attach this to the particle's vertices when in system's geometry.
  */
-class Particle
-{
+export default class Particle {
     /**
      * Create the particle.
      * @param {ParticlesSystem} system The particles system this particle belongs to.
      */
-    constructor(system)
-    {
+    constructor(system) {
         this.system = system;
         this.reset();
     }
 
     /**
-     * Reset the particle.    
+     * Reset the particle.
      */
-    reset()
-    {
+    reset() {
         var options = this.system.options.particles;
 
         // reset particle age and if alive
@@ -40,10 +39,10 @@ class Particle
         // particle's velocity and velocity bonus
         this.velocity = getConstOrRandomVector(options.velocity);
         if (options.velocityBonus) { this.velocity.add(options.velocityBonus); }
-        
+
         // particle's acceleration.
         this.acceleration = getConstOrRandomVector(options.acceleration, true);
-        
+
         // starting offset
         this.position = getConstOrRandomVector(options.offset);
 
@@ -53,8 +52,7 @@ class Particle
         // set per-particle alpha
         this.alpha = this.startAlpha = this.endAlpha = null;
         this.startAlphaChangeAt = (options.startAlphaChangeAt || 0) / this.ttl;
-        if (options.fade) 
-        {
+        if (options.fade) {
             // const alpha throughout particle's life?
             if (options.alpha !== undefined) {
                 this.alpha = Utils.randomizerOrValue(options.alpha);
@@ -64,14 +62,13 @@ class Particle
                 this.startAlpha = Utils.randomizerOrValue(options.startAlpha);
                 this.endAlpha = Utils.randomizerOrValue(options.endAlpha);
             }
-        } 
-   
+        }
+
         // set per-particle coloring
         this.colorize = Boolean(options.colorize);
         this.color = this.startColor = this.endColor = null;
         this.startColorChangeAt = (options.startColorChangeAt || 0) / this.ttl;
-        if (this.colorize) 
-        {
+        if (this.colorize) {
             // const color throughout particle's life?
             if (options.color) {
                 this.color = getConstOrRandomColor(options.color);
@@ -86,8 +83,7 @@ class Particle
         // set per-particle size
         this.size = this.startSize = this.endSize = null;
         this.startSizeChangeAt = (options.startSizeChangeAt || 0) / this.ttl;
-        if (options.scaling) 
-        {       
+        if (options.scaling) {
             // const size throughout particle's life?
             if (options.size !== undefined) {
                 this.size = Utils.randomizerOrValue(options.size);
@@ -97,12 +93,11 @@ class Particle
                 this.startSize = Utils.randomizerOrValue(options.startSize);
                 this.endSize = Utils.randomizerOrValue(options.endSize);
             }
-        } 
-        
+        }
+
         // set per-particle rotation
         this.rotation = this.rotationSpeed = null;
-        if (options.rotating) 
-        {
+        if (options.rotating) {
             this.rotation = Utils.randomizerOrValue(options.rotation || 0);
             this.rotationSpeed = Utils.randomizerOrValue(options.rotationSpeed || 0);
         }
@@ -124,8 +119,7 @@ class Particle
      * @param {*} index Particle index in system.
      * @param {*} deltaTime Update delta time.
      */
-    update(index, deltaTime)
-    {
+    update(index, deltaTime) {
         // if finished, skip
         if (this.finished) {
             return;
@@ -135,7 +129,7 @@ class Particle
         var firstUpdate = this.age === 0;
 
         // do first-update stuff
-        if (firstUpdate) 
+        if (firstUpdate)
         {
             // if its first update and use world position, store current world position
             if (this.system.options.particles.worldPosition) {
@@ -163,23 +157,22 @@ class Particle
             }
         }
         // do normal updates
-        else
-        {
+        else {
             // set animated color
             if (this.startColor && this.age >= this.startColorChangeAt) {
-                this.system.setColor(index, Utils.lerpColors(this.startColor, this.endColor, 
+                this.system.setColor(index, Utils.lerpColors(this.startColor, this.endColor,
                     this.startColorChangeAt ? ((this.age - this.startColorChangeAt) / (1-this.startColorChangeAt)) : this.age));
             }
 
             // set animated alpha
             if (this.startAlpha != null && this.age >= this.startAlphaChangeAt) {
-                this.system.setAlpha(index, Utils.lerp(this.startAlpha, this.endAlpha, 
+                this.system.setAlpha(index, Utils.lerp(this.startAlpha, this.endAlpha,
                     this.startAlphaChangeAt ? ((this.age - this.startAlphaChangeAt) / (1-this.startAlphaChangeAt)) : this.age));
             }
 
             // set animated size
             if (this.startSize != null && this.age >= this.startSizeChangeAt) {
-                this.system.setSize(index, Utils.lerp(this.startSize, this.endSize, 
+                this.system.setSize(index, Utils.lerp(this.startSize, this.endSize,
                     this.startSizeChangeAt ? ((this.age - this.startSizeChangeAt) / (1-this.startSizeChangeAt)) : this.age));
             }
         }
@@ -204,7 +197,7 @@ class Particle
         var positionToSet = this.position;
 
         // to maintain world position
-        if (this.startWorldPosition) 
+        if (this.startWorldPosition)
         {
             var systemPos = this.system.getWorldPosition();
             systemPos.sub(this.startWorldPosition);
@@ -220,7 +213,7 @@ class Particle
             this.velocity.y += this.acceleration.y * deltaTime;
             this.velocity.z += this.acceleration.z * deltaTime;
         }
-        
+
         // update age. note: use ttl as factor, so that age is always between 0 and 1
         this.age += deltaTime / this.ttl;
 
@@ -239,8 +232,7 @@ class Particle
     /**
      * Get particle's world position.
      */
-    get worldPosition()
-    {
+    get worldPosition() {
         return this.system.getWorldPosition().add(this.position);
     }
 }
@@ -251,7 +243,7 @@ class Particle
  */
 function getConstOrRandomVector(constValOrRandomizer, returnNullIfUndefined)
 {
-    if (!constValOrRandomizer) return (returnNullIfUndefined) ? null : new THREE.Vector3();
+    if (!constValOrRandomizer) return (returnNullIfUndefined) ? null : new Vector3();
     if (constValOrRandomizer.generate) return constValOrRandomizer.generate();
     return constValOrRandomizer.clone();
 }
@@ -262,7 +254,7 @@ function getConstOrRandomVector(constValOrRandomizer, returnNullIfUndefined)
  */
 function getConstOrRandomColor(constValOrRandomizer, returnNullIfUndefined)
 {
-    if (!constValOrRandomizer) return (returnNullIfUndefined) ? null : new THREE.Color(1, 1, 1);
+    if (!constValOrRandomizer) return (returnNullIfUndefined) ? null : new Color(1, 1, 1);
     if (constValOrRandomizer.generate) return constValOrRandomizer.generate();
     return constValOrRandomizer.clone();
 }

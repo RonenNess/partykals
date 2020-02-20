@@ -3,15 +3,18 @@
  * Author: Ronen Ness.
  * Since: 2019.
  */
-const THREE = require('./../_three');
-const VertexShaderCode = require('./shaders/vertex');
-const FragmentShaderCode = require('./shaders/fragment');
+import {
+    Color,
+    ShaderMaterial
+} from 'three';
+
+import VertexShaderCode from './shaders/vertex';
+import FragmentShaderCode from './shaders/fragment';
 
 /**
  * Material for particles.
  */
-class ParticlesMaterial
-{
+export default class ParticlesMaterial {
     /**
      * Create the particles material.
      * @param {*} options Material options.
@@ -27,14 +30,13 @@ class ParticlesMaterial
      * @param {Boolean} options.depthWrite If true, will perform depth write.
      * @param {Boolean} options.depthTest If true, will perform depth test.
      */
-    constructor(options)
-    {
+    constructor(options) {
         // store options
         this.options = options;
 
         // uniforms
         var uniforms = {
-            globalColor: { value: new THREE.Color( options.color || 0xffffff ) },
+            globalColor: { value: new Color( options.color || 0xffffff ) },
             rendererScale: { value: 1 },
         };
 
@@ -63,7 +65,7 @@ class ParticlesMaterial
         flags += "\n";
 
         // create the internal material
-        var shaderMaterial = new THREE.ShaderMaterial({
+        this.material = new ShaderMaterial({
             uniforms:       uniforms,
             vertexShader:   flags + VertexShaderCode,
             fragmentShader: flags + FragmentShaderCode,
@@ -73,26 +75,21 @@ class ParticlesMaterial
             depthWrite:     Boolean(options.depthWrite),
             depthTest:      Boolean(options.depthTest),
         });
-        this.material = shaderMaterial;
     }
 
     /**
      * Dispose the material.
      */
-    dispose()
-    {
+    dispose()  {
         this.material.dispose();
     }
-    
+
     /**
      * Set unified scale for all particles.
      */
-    setBaseScale(val)
-    {
+    setBaseScale(val) {
         if (this.options.perspective) {
             this.material.uniforms.rendererScale.value = val;
         }
     }
 }
-
-module.exports = ParticlesMaterial;

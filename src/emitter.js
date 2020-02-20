@@ -3,14 +3,12 @@
  * Author: Ronen Ness.
  * Since: 2019.
 */
-const Utils = require('./utils');
-var randomizerOrValue = Utils.randomizerOrValue;
+import { randomizerOrValue } from './utils';
 
 /**
  * Emitter class to determine rate of particles generation.
  */
-class Emitter
-{
+export default class Emitter {
     /**
      * Create the emitter class.
      * @param {*} options Emitter options.
@@ -19,8 +17,7 @@ class Emitter
      * @param {Number} options.interval Spawn interval time, in seconds; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random numbers.
      * @param {Number} options.detoretingMinTtl If provided and particle system's ttl is below this value, will start emitting less and less until stopping completely.
      */
-    constructor(options)
-    {
+    constructor(options) {
         this.options = options;
         options.interval = options.interval || 1;
         this.age = 0;
@@ -30,8 +27,7 @@ class Emitter
     /**
      * Update emitter and return how many particles should be generated this frame.
      */
-    update(deltaTime, system)
-    {
+    update(deltaTime, system) {
         // particles to generate
         var ret = 0;
 
@@ -39,7 +35,7 @@ class Emitter
         if (this.age === 0 && this.options.onSpawnBurst) {
             ret += randomizerOrValue(this.options.onSpawnBurst);
         }
-        
+
         // update age
         this.age += deltaTime;
 
@@ -65,6 +61,3 @@ class Emitter
         return ret;
     }
 }
-
-// export the emitter class
-module.exports = Emitter;

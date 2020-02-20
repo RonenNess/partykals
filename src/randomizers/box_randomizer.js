@@ -18,10 +18,10 @@ class BoxRandomizer extends Randomizer
     constructor(min, max)
     {
         super();
-        this.min = min || new THREE.Vector3(-1, -1, -1);
-        this.max = max || new THREE.Vector3(1, 1, 1);
+        this.min = min || new Vector3(-1, -1, -1);
+        this.max = max || new Vector3(1, 1, 1);
     }
-    
+
     /**
      * Generate a random vector.
      */
