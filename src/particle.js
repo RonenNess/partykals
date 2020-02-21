@@ -258,6 +258,3 @@ function getConstOrRandomColor(constValOrRandomizer, returnNullIfUndefined)
     if (constValOrRandomizer.generate) return constValOrRandomizer.generate();
     return constValOrRandomizer.clone();
 }
-
-
-module.exports = Particle;

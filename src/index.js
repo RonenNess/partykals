@@ -6,8 +6,8 @@
 import ParticlesSystem from './particles_system';
 import Particle from './particle';
 import Emitter from './emitter';
-import Utils from './utils';
-import Randomizers from './randomizers';
+import * as Utils from './utils';
+import * as Randomizers from './randomizers';
 
 export {
     ParticlesSystem,

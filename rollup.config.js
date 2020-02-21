@@ -9,6 +9,7 @@ export default {
     input: './src/index.js',
     // non-relative imports are not included by rollup,
     // here we explicitly list our external deps
+    external: ['three'],
     output: {
         file: './dist/index.js',
         format: 'esm',

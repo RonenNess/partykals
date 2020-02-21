@@ -7,7 +7,6 @@ const config = {
         }],
     ],
     plugins: [
-        ["babel-plugin-inferno", {"imports": true}],
         "@babel/plugin-proposal-class-properties"
     ]
 };

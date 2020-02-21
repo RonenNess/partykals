@@ -5,7 +5,8 @@
  */
 import {
     Color,
-    ShaderMaterial
+    ShaderMaterial,
+    VertexColors
 } from 'three';
 
 import VertexShaderCode from './shaders/vertex';
@@ -20,8 +21,8 @@ export default class ParticlesMaterial {
      * @param {*} options Material options.
      * @param {Number} options.color Material general color.
      * @param {Boolean} options.transparent Should we support transparency?
-     * @param {THREE.Blending} options.blending Blending mode.
-     * @param {THREE.Texture} options.map Texture to use.
+     * @param {Blending} options.blending Blending mode.
+     * @param {Texture} options.map Texture to use.
      * @param {Boolean} options.perspective If true, will scale particles based on distance from camera.
      * @param {Boolean} options.perParticleColor If true, will allow per-particle colors.
      * @param {Boolean} options.perParticleRotation If true, will allow per-particle rotation.
@@ -71,7 +72,7 @@ export default class ParticlesMaterial {
             fragmentShader: flags + FragmentShaderCode,
             transparent:    Boolean(options.transparent),
             blending:       options.blending,
-            vertexColors:   THREE.VertexColors,
+            vertexColors:   VertexColors,
             depthWrite:     Boolean(options.depthWrite),
             depthTest:      Boolean(options.depthTest),
         });

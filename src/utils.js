@@ -22,7 +22,7 @@ export const getRandomBetween = (min, max) => {
  */
 export const getRandomWithSpread = (baseVal, extraRandom) => {
     if (!extraRandom) { return baseVal; }
-    return this.getRandomBetween(baseVal, baseVal + extraRandom);
+    return getRandomBetween(baseVal, baseVal + extraRandom);
 };
 
 /**
@@ -32,9 +32,9 @@ export const getRandomWithSpread = (baseVal, extraRandom) => {
 export const getRandomColorBetween = (colMin, colMax) => {
     if (!colMax) { return colMin ? colMin.clone() : new Color(); }
     return new Color(
-        this.getRandomBetween(colMin.r, colMax.r),
-        this.getRandomBetween(colMin.g, colMax.g),
-        this.getRandomBetween(colMin.b, colMax.b),
+        getRandomBetween(colMin.r, colMax.r),
+        getRandomBetween(colMin.g, colMax.g),
+        getRandomBetween(colMin.b, colMax.b),
     );
 };
 
@@ -45,24 +45,10 @@ export const getRandomColorBetween = (colMin, colMax) => {
 export const getRandomVectorBetween = (vecMin, vecMax) => {
     if (!vecMax) { return vecMin ? vecMin.clone() : new Vector3(); }
     return new Vector3(
-        this.getRandomBetween(vecMin.x, vecMax.x),
-        this.getRandomBetween(vecMin.y, vecMax.y),
-        this.getRandomBetween(vecMin.z, vecMax.z),
+        getRandomBetween(vecMin.x, vecMax.x),
+        getRandomBetween(vecMin.y, vecMax.y),
+        getRandomBetween(vecMin.z, vecMax.z),
     );
-};
-
-/**
- * Lerp between two colors, returning a new color without changing any of them.
- */
-export const lerpColors = (colA, colB, alpha) => {
-    return colA.clone().lerp(colB, alpha);
-};
-
-/**
- * Lerp between two colors, returning a new color without changing any of them.
- */
-export const lerpColors = (colA, colB, alpha) => {
-    return colA.clone().lerp(colB, alpha);
 };
 
 /**
@@ -82,6 +68,6 @@ export const lerp = (x, y, alpha) => {
 /**
  * Get const numeric value or generate random value from randomizer.
  */
-export const nrandomizerOrValue = (val) => {
+export const randomizerOrValue = (val) => {
     return (val.generate ? val.generate() : val) || 0;
 };
