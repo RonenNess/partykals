@@ -822,6 +822,11 @@ class ParticlesSystem
         var particleSystem = new THREE.Points(this.particlesGeometry, this.material.material);
         particleSystem.sortParticles = isTransparent;
 
+		// set default render order
+		if (ParticlesSystem.defaultRenderOrder !== undefined) {
+			particleSystem.renderOrder = ParticlesSystem.defaultRenderOrder;
+		}
+
         // store particles system
         this.particleSystem = particleSystem;
 
@@ -1126,7 +1131,8 @@ class ParticlesSystem
     };
 }
 
-
+// override this to set default rendering order to all particle systems
+ParticlesSystem.defaultRenderOrder = undefined;
 
 // export the particles system
 module.exports = ParticlesSystem;
