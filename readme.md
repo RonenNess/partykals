@@ -209,6 +209,7 @@ For more info, check out the randomizers under `randomizers/` folder, or under `
 ### 1.0.2 [WIP]
 
 - Fixed `dispose` to also dispose the material.
+- Fixed shaders to work with WebGL2 as well.
 
 ## License
 

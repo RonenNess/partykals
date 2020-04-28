@@ -134,7 +134,7 @@ class ParticlesMaterial
         }
         if (options.map) {
             flags += "#define TEXTURE\n";
-            uniforms.texture = { value: options.map };
+            uniforms._texture = { value: options.map };
         }
         if (options.perParticleColor) {
             flags += "#define COLORING\n";
@@ -210,7 +210,7 @@ varying float vAlpha;
 
 // diffuse texture
 #ifdef TEXTURE
-    uniform sampler2D texture;
+    uniform sampler2D _texture;
 #endif
 
 // fragment shader main
@@ -229,15 +229,15 @@ void main()
             float mid = 0.5;
             vec2 rotated = vec2(cos(vRotation) * (gl_PointCoord.x - mid) + sin(vRotation) * (gl_PointCoord.y - mid) + mid,
                           cos(vRotation) * (gl_PointCoord.y - mid) - sin(vRotation) * (gl_PointCoord.x - mid) + mid);
-            vec4 texture = texture2D(texture,  rotated);
+            vec4 textureCol = texture2D(_texture,  rotated);
         // no rotation
         #else
             vec2 coords = vec2((gl_PointCoord.x - 0.5) + 0.5, (gl_PointCoord.y - 0.5) + 0.5);
-            vec4 texture = texture2D(texture, coords);
+            vec4 textureCol = texture2D(_texture, coords);
         #endif
 
         // get color with texture
-        gl_FragColor = vec4( globalColor * vColor, vAlpha ) * texture;
+        gl_FragColor = vec4( globalColor * vColor, vAlpha ) * textureCol;
         
     // no texture (colors only)
     #else

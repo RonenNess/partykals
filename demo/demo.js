@@ -8,8 +8,18 @@ animate();
 // init demo
 function init() {
 
-    // renderer
-    renderer = new THREE.WebGLRenderer();
+	// init as webgl2
+	if (window.webgl2) {
+		var canvas = document.createElement( 'canvas' );
+		var context = canvas.getContext( 'webgl2', { alpha: false } );
+		renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
+	}
+	// init as webgl1
+	else {
+		renderer = new THREE.WebGLRenderer();
+	}
+	
+	// set size and clearcolor
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.setClearColor( 0x001122, 1 )
     document.body.appendChild( renderer.domElement );

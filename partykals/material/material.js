@@ -45,7 +45,7 @@ class ParticlesMaterial
         }
         if (options.map) {
             flags += "#define TEXTURE\n";
-            uniforms.texture = { value: options.map };
+            uniforms._texture = { value: options.map };
         }
         if (options.perParticleColor) {
             flags += "#define COLORING\n";
