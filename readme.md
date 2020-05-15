@@ -206,10 +206,10 @@ For more info, check out the randomizers under `randomizers/` folder, or under `
 - Added startAlphaChangeAt, startSizeChangeAt, and startColorChangeAt to only start transitions after some time passes.
 - Some minor bugfixes
 
-### 1.0.2 [WIP]
+### 1.0.2
 
 - Fixed `dispose` to also dispose the material.
-- Fixed shaders to work with WebGL2 as well.
+- Fixed shaders to work with WebGL2.
 
 ## License
 
