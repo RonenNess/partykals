@@ -19,6 +19,12 @@ To start using Partykals either include script `dist/partykals.js` in your HTML 
 
 `Partykals` will try to find THREE.js either in global space (under `window` object) or by using require('three'). One of these options must be available in order for it to work.
 
+## Use with 'import'
+
+To use with 'import' see the discussion here:
+
+https://github.com/RonenNess/partykals/issues/5
+
 # Usage
 
 To create a new particles system:
