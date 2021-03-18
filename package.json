@@ -3,8 +3,12 @@
   "version": "1.0.2",
   "description": "Easy-to-use Particle Systems for THREE.js.",
   "main": "dist/partykals.js",
+  "module": "dist/partykals.module.js",
   "scripts": {
-    "test": ""
+    "test": "",
+    "build": "NODE_ENV=development rollup -c",
+    "dev": "NODE_ENV=development rollup -c -w",
+    "postinstall": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -12,10 +16,10 @@
   },
   "keywords": [
     "webgl",
-	"three",
-	"threejs",
-	"particle system",
-	"particles",
+    "three",
+    "threejs",
+    "particle system",
+    "particles",
     "effects"
   ],
   "author": "Ronen Ness",
@@ -23,5 +27,24 @@
   "bugs": {
     "url": "https://github.com/RonenNess/partykals/issues"
   },
-  "homepage": "https://github.com/RonenNess/partykals/"
+  "homepage": "https://github.com/RonenNess/partykals/",
+  "peerDependencies": {
+    "three": "^0.124.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@rollup/plugin-babel": "^5.2.2",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.1",
+    "@rollup/plugin-replace": "^2.3.4",
+    "@rollup/pluginutils": "4.1.0",
+    "rollup": "^2.35.1",
+    "rollup-plugin-babel-minify": "^6.0.0",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-inject-process-env": "^1.3.1",
+    "rollup-plugin-svelte": "^7.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "svelte": "3.31.0"
+  }
 }

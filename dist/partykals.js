@@ -1,106 +1,454 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Partykals = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-// This file is just a wrapper to get THREE base module.
-// If its not in your global space, edit this file accordingly.
-module.exports = window.THREE || require('three');
-},{"three":undefined}],2:[function(require,module,exports){
-/**
- * Implement an emitter class to generate particles.
- * Author: Ronen Ness.
- * Since: 2019.
-*/
-const Utils = require('./utils');
-var randomizerOrValue = Utils.randomizerOrValue;
+var partykals = (function (THREE) {
+  'use strict';
 
-/**
- * Emitter class to determine rate of particles generation.
- */
-class Emitter
-{
+  function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+  var THREE__default = /*#__PURE__*/_interopDefaultLegacy(THREE);
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function");
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) _setPrototypeOf(subClass, superClass);
+  }
+
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+      return o.__proto__ || Object.getPrototypeOf(o);
+    };
+    return _getPrototypeOf(o);
+  }
+
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return self;
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (call && (typeof call === "object" || typeof call === "function")) {
+      return call;
+    }
+
+    return _assertThisInitialized(self);
+  }
+
+  function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+
+      return _possibleConstructorReturn(this, result);
+    };
+  }
+
+  /**
+   * Implement a single particle in the particles system.
+   * Author: Ronen Ness.
+   * Since: 2019.
+  */
+  var utils = {
     /**
-     * Create the emitter class.
-     * @param {*} options Emitter options.
-     * @param {*} options.onSpawnBurst Burst of particles when particle system starts; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random numbers.
-     * @param {*} options.onInterval Burst of particles every interval; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random numbers.
-     * @param {Number} options.interval Spawn interval time, in seconds; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random numbers.
-     * @param {Number} options.detoretingMinTtl If provided and particle system's ttl is below this value, will start emitting less and less until stopping completely.
+     * Returns a random number between min (inclusive) and max (exclusive)
      */
-    constructor(options)
-    {
-        this.options = options;
-        options.interval = options.interval || 1;
+    getRandomBetween: function getRandomBetween(min, max) {
+      return Math.random() * (max - min) + min;
+    },
+
+    /**
+     * Get random between baseVal and baseVal + extraRandom.
+     * If 'extraRandom' is not defined, will just return baseVal.
+     * If baseVal is not defined, will return white.
+     */
+    getRandomWithSpread: function getRandomWithSpread(baseVal, extraRandom) {
+      if (!extraRandom) {
+        return baseVal;
+      }
+
+      return this.getRandomBetween(baseVal, baseVal + extraRandom);
+    },
+
+    /**
+     * Get random between two colors.
+     * If 'colMax' is not defined, will just return colMin or white color if not defined.
+     */
+    getRandomColorBetween: function getRandomColorBetween(colMin, colMax) {
+      if (!colMax) {
+        return colMin ? colMin.clone() : new THREE__default['default'].Color();
+      }
+
+      return new THREE__default['default'].Color(this.getRandomBetween(colMin.r, colMax.r), this.getRandomBetween(colMin.g, colMax.g), this.getRandomBetween(colMin.b, colMax.b));
+    },
+
+    /**
+     * Get random between two vectors.
+     * If 'vecMax' is not defined, will just return vecMin or zero point if not defined.
+     */
+    getRandomVectorBetween: function getRandomVectorBetween(vecMin, vecMax) {
+      if (!vecMax) {
+        return vecMin ? vecMin.clone() : new THREE__default['default'].Vector3();
+      }
+
+      return new THREE__default['default'].Vector3(this.getRandomBetween(vecMin.x, vecMax.x), this.getRandomBetween(vecMin.y, vecMax.y), this.getRandomBetween(vecMin.z, vecMax.z));
+    },
+
+    /**
+     * Lerp between two colors, returning a new color without changing any of them.
+     */
+    lerpColors: function lerpColors(colA, colB, alpha) {
+      return colA.clone().lerp(colB, alpha);
+    },
+
+    /**
+     * Lerp between two numbers.
+     */
+    lerp: function lerp(x, y, alpha) {
+      return x * (1 - alpha) + y * alpha;
+    },
+
+    /**
+     * Get const numeric value or generate random value from randomizer.
+     */
+    randomizerOrValue: function randomizerOrValue(val) {
+      return (val.generate ? val.generate() : val) || 0;
+    }
+  };
+
+  /**
+   * A single particle metadata in the particles system.
+   * We attach this to the particle's vertices when in system's geometry.
+   */
+
+  var Particle = /*#__PURE__*/function () {
+    /**
+     * Create the particle.
+     * @param {ParticlesSystem} system The particles system this particle belongs to.
+     */
+    function Particle(system) {
+      _classCallCheck(this, Particle);
+
+      this.system = system;
+      this.reset();
+    }
+    /**
+     * Reset the particle.    
+     */
+
+
+    _createClass(Particle, [{
+      key: "reset",
+      value: function reset() {
+        var options = this.system.options.particles; // reset particle age and if alive
+
         this.age = 0;
-        this.timeToSpawn = Math.random() * randomizerOrValue(options.interval);
-    }
+        this.finished = false; // store gravity force
 
-    /**
-     * Update emitter and return how many particles should be generated this frame.
-     */
-    update(deltaTime, system)
-    {
-        // particles to generate
-        var ret = 0;
+        this.gravity = options.gravity; // particle's velocity and velocity bonus
 
-        // first update? do burst
-        if (this.age === 0 && this.options.onSpawnBurst) {
-            ret += randomizerOrValue(this.options.onSpawnBurst);
+        this.velocity = getConstOrRandomVector(options.velocity);
+
+        if (options.velocityBonus) {
+          this.velocity.add(options.velocityBonus);
+        } // particle's acceleration.
+
+
+        this.acceleration = getConstOrRandomVector(options.acceleration, true); // starting offset
+
+        this.position = getConstOrRandomVector(options.offset); // set particle's ttl
+
+        this.ttl = utils.getRandomWithSpread(options.ttl || 1, options.ttlExtra) || 1; // set per-particle alpha
+
+        this.alpha = this.startAlpha = this.endAlpha = null;
+        this.startAlphaChangeAt = (options.startAlphaChangeAt || 0) / this.ttl;
+
+        if (options.fade) {
+          // const alpha throughout particle's life?
+          if (options.alpha !== undefined) {
+            this.alpha = utils.randomizerOrValue(options.alpha);
+          } // shifting alpha?
+          else {
+              this.startAlpha = utils.randomizerOrValue(options.startAlpha);
+              this.endAlpha = utils.randomizerOrValue(options.endAlpha);
+            }
+        } // set per-particle coloring
+
+
+        this.colorize = Boolean(options.colorize);
+        this.color = this.startColor = this.endColor = null;
+        this.startColorChangeAt = (options.startColorChangeAt || 0) / this.ttl;
+
+        if (this.colorize) {
+          // const color throughout particle's life?
+          if (options.color) {
+            this.color = getConstOrRandomColor(options.color);
+          } // shifting color?
+          else {
+              this.startColor = getConstOrRandomColor(options.startColor);
+              this.endColor = getConstOrRandomColor(options.endColor);
+            }
+        } // set per-particle size
+
+
+        this.size = this.startSize = this.endSize = null;
+        this.startSizeChangeAt = (options.startSizeChangeAt || 0) / this.ttl;
+
+        if (options.scaling) {
+          // const size throughout particle's life?
+          if (options.size !== undefined) {
+            this.size = utils.randomizerOrValue(options.size);
+          } // shifting size?
+          else {
+              this.startSize = utils.randomizerOrValue(options.startSize);
+              this.endSize = utils.randomizerOrValue(options.endSize);
+            }
+        } // set per-particle rotation
+
+
+        this.rotation = this.rotationSpeed = null;
+
+        if (options.rotating) {
+          this.rotation = utils.randomizerOrValue(options.rotation || 0);
+          this.rotationSpeed = utils.randomizerOrValue(options.rotationSpeed || 0);
+        } // used to keep constant world position
+
+
+        this.startWorldPosition = null; // store on-update callback, if defined
+
+        this.onUpdate = options.onUpdate; // call custom spawn method
+
+        if (options.onSpawn) {
+          options.onSpawn(this);
         }
-        
-        // update age
-        this.age += deltaTime;
+      }
+      /**
+       * Update the particle (call this every frame).
+       * @param {*} index Particle index in system.
+       * @param {*} deltaTime Update delta time.
+       */
 
-        // no interval emitting? skip
-        if (!this.options.onInterval) {
-            return ret;
+    }, {
+      key: "update",
+      value: function update(index, deltaTime) {
+        // if finished, skip
+        if (this.finished) {
+          return;
+        } // is it first update call?
+
+
+        var firstUpdate = this.age === 0; // do first-update stuff
+
+        if (firstUpdate) {
+          // if its first update and use world position, store current world position
+          if (this.system.options.particles.worldPosition) {
+            this.startWorldPosition = this.system.getWorldPosition();
+          } // set constant alpha
+
+
+          if (this.alpha !== null || this.startAlpha !== null) {
+            this.system.setAlpha(index, this.alpha || this.startAlpha);
+          } // set constant color
+
+
+          if (this.color !== null || this.startColor !== null) {
+            this.system.setColor(index, this.color || this.startColor);
+          } // set constant size
+
+
+          if (this.size !== null || this.startSize !== null) {
+            this.system.setSize(index, this.size || this.startSize);
+          } // set start rotation
+
+
+          if (this.rotation !== null) {
+            this.system.setRotation(index, this.rotation);
+          }
+        } // do normal updates
+        else {
+            // set animated color
+            if (this.startColor && this.age >= this.startColorChangeAt) {
+              this.system.setColor(index, utils.lerpColors(this.startColor, this.endColor, this.startColorChangeAt ? (this.age - this.startColorChangeAt) / (1 - this.startColorChangeAt) : this.age));
+            } // set animated alpha
+
+
+            if (this.startAlpha != null && this.age >= this.startAlphaChangeAt) {
+              this.system.setAlpha(index, utils.lerp(this.startAlpha, this.endAlpha, this.startAlphaChangeAt ? (this.age - this.startAlphaChangeAt) / (1 - this.startAlphaChangeAt) : this.age));
+            } // set animated size
+
+
+            if (this.startSize != null && this.age >= this.startSizeChangeAt) {
+              this.system.setSize(index, utils.lerp(this.startSize, this.endSize, this.startSizeChangeAt ? (this.age - this.startSizeChangeAt) / (1 - this.startSizeChangeAt) : this.age));
+            }
+          } // add gravity force
+
+
+        if (this.gravity && this.velocity) {
+          this.velocity.y += this.gravity * deltaTime;
+        } // set animated rotation
+
+
+        if (this.rotationSpeed) {
+          this.rotation += this.rotationSpeed * deltaTime;
+          this.system.setRotation(index, this.rotation);
+        } // update position
+
+
+        if (this.velocity) {
+          this.position.x += this.velocity.x * deltaTime;
+          this.position.y += this.velocity.y * deltaTime;
+          this.position.z += this.velocity.z * deltaTime;
         }
 
-        // check if inverval expired
-        this.timeToSpawn -= deltaTime;
-        if (this.timeToSpawn <= 0) {
-            this.timeToSpawn = randomizerOrValue(this.options.interval);
-            ret += randomizerOrValue(this.options.onInterval);
+        var positionToSet = this.position; // to maintain world position
+
+        if (this.startWorldPosition) {
+          var systemPos = this.system.getWorldPosition();
+          systemPos.sub(this.startWorldPosition);
+          positionToSet = positionToSet.clone().sub(systemPos);
+        } // set position in system
+
+
+        this.system.setPosition(index, positionToSet); // update velocity
+
+        if (this.acceleration && this.velocity) {
+          this.velocity.x += this.acceleration.x * deltaTime;
+          this.velocity.y += this.acceleration.y * deltaTime;
+          this.velocity.z += this.acceleration.z * deltaTime;
+        } // update age. note: use ttl as factor, so that age is always between 0 and 1
+
+
+        this.age += deltaTime / this.ttl; // call custom methods
+
+        if (this.onUpdate) {
+          this.onUpdate(this);
+        } // is done? set as finished and continue to set final state
+
+
+        if (this.age > 1) {
+          this.age = 1;
+          this.finished = true;
         }
+      }
+      /**
+       * Get particle's world position.
+       */
 
-        // do detoration
-        if (this.options.detoretingMinTtl && system.ttl < this.options.detoretingMinTtl) {
-            var detorateFactor = system.ttl / this.options.detoretingMinTtl;
-            ret *= detorateFactor;
-        }
+    }, {
+      key: "worldPosition",
+      get: function get() {
+        return this.system.getWorldPosition().add(this.position);
+      }
+    }]);
 
-        // return number of particles to generate
-        return ret;
-    }
-}
+    return Particle;
+  }();
+  /**
+   * Return either the value of a randomizer, a const value, or a default empty or null.
+   */
 
-// export the emitter class
-module.exports = Emitter;
-},{"./utils":15}],3:[function(require,module,exports){
-/**
- * Module main entry point.
- * Author: Ronen Ness.
- * Since: 2019.
- */
-module.exports = {
-    ParticlesSystem: require('./particles_system'),
-    Particle: require('./particle'),
-    Emitter: require('./emitter'),
-    Utils: require('./utils'),
-    Randomizers: require('./randomizers'),
-}
-},{"./emitter":2,"./particle":7,"./particles_system":8,"./randomizers":11,"./utils":15}],4:[function(require,module,exports){
-/**
- * Create the shader material.
- * Author: Ronen Ness.
- * Since: 2019.
- */
-const THREE = require('./../_three');
-const VertexShaderCode = require('./shaders/vertex');
-const FragmentShaderCode = require('./shaders/fragment');
 
-/**
- * Material for particles.
- */
-class ParticlesMaterial
-{
+  function getConstOrRandomVector(constValOrRandomizer, returnNullIfUndefined) {
+    if (!constValOrRandomizer) return returnNullIfUndefined ? null : new THREE__default['default'].Vector3();
+    if (constValOrRandomizer.generate) return constValOrRandomizer.generate();
+    return constValOrRandomizer.clone();
+  }
+  /**
+   * Return either the value of a randomizer, a const value, or a default empty or null.
+   */
+
+
+  function getConstOrRandomColor(constValOrRandomizer, returnNullIfUndefined) {
+    if (!constValOrRandomizer) return returnNullIfUndefined ? null : new THREE__default['default'].Color(1, 1, 1);
+    if (constValOrRandomizer.generate) return constValOrRandomizer.generate();
+    return constValOrRandomizer.clone();
+  }
+
+  var particle = Particle;
+
+  /**
+   * Implement vertex shader for our particles.
+   * Author: Ronen Ness.
+   * Since: 2019.
+   */
+  var code$1 = "\n// attributes we get from geometry\nattribute float alpha;\n\n// per-particle size\n#ifdef CONST_SIZE\n    uniform float constSize;\n#else\n    attribute float size;\n#endif\n\n// per-particle rotation\n#ifdef ROTATION\n    attribute float rotation;\n#endif\n\n// system scale when using perspective mode\n#ifdef PERSPECTIVE\n    uniform float rendererScale;\n#endif\n\n// output params for fragment shader\nvarying float vAlpha;\n\n// set per-particle color\n#ifdef COLORING\n    varying vec3 vColor;\n#endif\n\n// get per-particle rotation\n#ifdef ROTATION\n    varying float vRotation;\n#endif\n\n// vertex shader main\nvoid main() \n{\n    // alpha and color\n    vAlpha = alpha;\n\n    // set color\n    #ifdef COLORING\n        vColor = color;\n    #endif\n\n    // set const size\n    #ifdef CONST_SIZE\n        float size = constSize;\n    #endif\n\n    // set position\n    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\n    gl_Position = projectionMatrix * mvPosition;\n\n    // apply rotation\n    #ifdef ROTATION\n        vRotation = rotation;\n    #endif\n    \n    // set size - either perspective or constant\n    #ifdef PERSPECTIVE\n        gl_PointSize = size * (rendererScale / length(mvPosition.xyz));\n    #else\n        gl_PointSize = size;\n    #endif\n}\n";
+  var vertex = code$1;
+
+  /**
+   * Implement fragment shader for our particles.
+   * Author: Ronen Ness.
+   * Since: 2019.
+   */
+  var code = "\n// material uniforms\nuniform vec3 globalColor;\n\n// params we get from vertex shader\nvarying float vAlpha;\n\n// per-particle color from vertex shader\n#ifdef COLORING\n    varying vec3 vColor;\n#endif\n\n// per-particle rotation from vertex shader\n#ifdef ROTATION\n    varying float vRotation;\n#endif\n\n// diffuse texture\n#ifdef TEXTURE\n    uniform sampler2D _texture;\n#endif\n\n// fragment shader main\nvoid main() \n{\n    // set default color if don't have per-particle colors\n    #ifndef COLORING\n        vec3 vColor = vec3(1,1,1);\n    #endif\n\n    // texture\n    #ifdef TEXTURE\n\n        // use rotation (rotate texture)\n        #ifdef ROTATION\n            float mid = 0.5;\n            vec2 rotated = vec2(cos(vRotation) * (gl_PointCoord.x - mid) + sin(vRotation) * (gl_PointCoord.y - mid) + mid,\n                          cos(vRotation) * (gl_PointCoord.y - mid) - sin(vRotation) * (gl_PointCoord.x - mid) + mid);\n            vec4 textureCol = texture2D(_texture,  rotated);\n        // no rotation\n        #else\n            vec2 coords = vec2((gl_PointCoord.x - 0.5) + 0.5, (gl_PointCoord.y - 0.5) + 0.5);\n            vec4 textureCol = texture2D(_texture, coords);\n        #endif\n\n        // get color with texture\n        gl_FragColor = vec4( globalColor * vColor, vAlpha ) * textureCol;\n        \n    // no texture (colors only)\n    #else\n        gl_FragColor = vec4( globalColor * vColor, vAlpha );\n    #endif\n\n    // check if need to discard pixel\n    #ifdef ALPHA_TEST\n        if (gl_FragColor.a < 0.00001) { discard; }\n    #endif\n}\n";
+  var fragment = code;
+
+  /**
+   * Material for particles.
+   */
+
+  var ParticlesMaterial = /*#__PURE__*/function () {
     /**
      * Create the particles material.
      * @param {*} options Material options.
@@ -116,502 +464,100 @@ class ParticlesMaterial
      * @param {Boolean} options.depthWrite If true, will perform depth write.
      * @param {Boolean} options.depthTest If true, will perform depth test.
      */
-    constructor(options)
-    {
-        // store options
-        this.options = options;
+    function ParticlesMaterial(options) {
+      _classCallCheck(this, ParticlesMaterial);
 
-        // uniforms
-        var uniforms = {
-            globalColor: { value: new THREE.Color( options.color || 0xffffff ) },
-            rendererScale: { value: 1 },
+      // store options
+      this.options = options; // uniforms
+
+      var uniforms = {
+        globalColor: {
+          value: new THREE__default['default'].Color(options.color || 0xffffff)
+        },
+        rendererScale: {
+          value: 1
+        }
+      }; // set flags to change shaders behavior
+
+      var flags = "";
+
+      if (options.perspective) {
+        flags += "#define PERSPECTIVE\n";
+      }
+
+      if (options.map) {
+        flags += "#define TEXTURE\n";
+        uniforms._texture = {
+          value: options.map
         };
+      }
 
-        // set flags to change shaders behavior
-        var flags = "";
-        if (options.perspective) {
-            flags += "#define PERSPECTIVE\n";
-        }
-        if (options.map) {
-            flags += "#define TEXTURE\n";
-            uniforms._texture = { value: options.map };
-        }
-        if (options.perParticleColor) {
-            flags += "#define COLORING\n";
-        }
-        if (options.perParticleRotation) {
-            flags += "#define ROTATION\n";
-        }
-        if (options.constSize) {
-            flags += "#define CONST_SIZE\n";
-            uniforms.constSize = { value: options.constSize };
-        }
-        if (options.alphaTest) {
-            flags += "#define ALPHA_TEST\n";
-        }
-        flags += "\n";
+      if (options.perParticleColor) {
+        flags += "#define COLORING\n";
+      }
 
-        // create the internal material
-        var shaderMaterial = new THREE.ShaderMaterial({
-            uniforms:       uniforms,
-            vertexShader:   flags + VertexShaderCode,
-            fragmentShader: flags + FragmentShaderCode,
-            transparent:    Boolean(options.transparent),
-            blending:       options.blending,
-            vertexColors:   THREE.VertexColors,
-            depthWrite:     Boolean(options.depthWrite),
-            depthTest:      Boolean(options.depthTest),
-        });
-        this.material = shaderMaterial;
+      if (options.perParticleRotation) {
+        flags += "#define ROTATION\n";
+      }
+
+      if (options.constSize) {
+        flags += "#define CONST_SIZE\n";
+        uniforms.constSize = {
+          value: options.constSize
+        };
+      }
+
+      if (options.alphaTest) {
+        flags += "#define ALPHA_TEST\n";
+      }
+
+      flags += "\n"; // create the internal material
+
+      var shaderMaterial = new THREE__default['default'].ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: flags + vertex,
+        fragmentShader: flags + fragment,
+        transparent: Boolean(options.transparent),
+        blending: options.blending,
+        vertexColors: THREE__default['default'].VertexColors,
+        depthWrite: Boolean(options.depthWrite),
+        depthTest: Boolean(options.depthTest)
+      });
+      this.material = shaderMaterial;
     }
-
     /**
      * Dispose the material.
      */
-    dispose()
-    {
+
+
+    _createClass(ParticlesMaterial, [{
+      key: "dispose",
+      value: function dispose() {
         this.material.dispose();
-    }
-    
-    /**
-     * Set unified scale for all particles.
-     */
-    setBaseScale(val)
-    {
+      }
+      /**
+       * Set unified scale for all particles.
+       */
+
+    }, {
+      key: "setBaseScale",
+      value: function setBaseScale(val) {
         if (this.options.perspective) {
-            this.material.uniforms.rendererScale.value = val;
+          this.material.uniforms.rendererScale.value = val;
         }
-    }
-}
+      }
+    }]);
 
-module.exports = ParticlesMaterial;
-},{"./../_three":1,"./shaders/fragment":5,"./shaders/vertex":6}],5:[function(require,module,exports){
-/**
- * Implement fragment shader for our particles.
- * Author: Ronen Ness.
- * Since: 2019.
- */
-var code = `
-// material uniforms
-uniform vec3 globalColor;
+    return ParticlesMaterial;
+  }();
 
-// params we get from vertex shader
-varying float vAlpha;
+  var material = ParticlesMaterial;
 
-// per-particle color from vertex shader
-#ifdef COLORING
-    varying vec3 vColor;
-#endif
+  /**
+   * Particles system.
+   */
 
-// per-particle rotation from vertex shader
-#ifdef ROTATION
-    varying float vRotation;
-#endif
-
-// diffuse texture
-#ifdef TEXTURE
-    uniform sampler2D _texture;
-#endif
-
-// fragment shader main
-void main() 
-{
-    // set default color if don't have per-particle colors
-    #ifndef COLORING
-        vec3 vColor = vec3(1,1,1);
-    #endif
-
-    // texture
-    #ifdef TEXTURE
-
-        // use rotation (rotate texture)
-        #ifdef ROTATION
-            float mid = 0.5;
-            vec2 rotated = vec2(cos(vRotation) * (gl_PointCoord.x - mid) + sin(vRotation) * (gl_PointCoord.y - mid) + mid,
-                          cos(vRotation) * (gl_PointCoord.y - mid) - sin(vRotation) * (gl_PointCoord.x - mid) + mid);
-            vec4 textureCol = texture2D(_texture,  rotated);
-        // no rotation
-        #else
-            vec2 coords = vec2((gl_PointCoord.x - 0.5) + 0.5, (gl_PointCoord.y - 0.5) + 0.5);
-            vec4 textureCol = texture2D(_texture, coords);
-        #endif
-
-        // get color with texture
-        gl_FragColor = vec4( globalColor * vColor, vAlpha ) * textureCol;
-        
-    // no texture (colors only)
-    #else
-        gl_FragColor = vec4( globalColor * vColor, vAlpha );
-    #endif
-
-    // check if need to discard pixel
-    #ifdef ALPHA_TEST
-        if (gl_FragColor.a < 0.00001) { discard; }
-    #endif
-}
-`;
-module.exports = code;
-},{}],6:[function(require,module,exports){
-/**
- * Implement vertex shader for our particles.
- * Author: Ronen Ness.
- * Since: 2019.
- */
-var code = `
-// attributes we get from geometry
-attribute float alpha;
-
-// per-particle size
-#ifdef CONST_SIZE
-    uniform float constSize;
-#else
-    attribute float size;
-#endif
-
-// per-particle rotation
-#ifdef ROTATION
-    attribute float rotation;
-#endif
-
-// system scale when using perspective mode
-#ifdef PERSPECTIVE
-    uniform float rendererScale;
-#endif
-
-// output params for fragment shader
-varying float vAlpha;
-
-// set per-particle color
-#ifdef COLORING
-    varying vec3 vColor;
-#endif
-
-// get per-particle rotation
-#ifdef ROTATION
-    varying float vRotation;
-#endif
-
-// vertex shader main
-void main() 
-{
-    // alpha and color
-    vAlpha = alpha;
-
-    // set color
-    #ifdef COLORING
-        vColor = color;
-    #endif
-
-    // set const size
-    #ifdef CONST_SIZE
-        float size = constSize;
-    #endif
-
-    // set position
-    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-    gl_Position = projectionMatrix * mvPosition;
-
-    // apply rotation
-    #ifdef ROTATION
-        vRotation = rotation;
-    #endif
-    
-    // set size - either perspective or constant
-    #ifdef PERSPECTIVE
-        gl_PointSize = size * (rendererScale / length(mvPosition.xyz));
-    #else
-        gl_PointSize = size;
-    #endif
-}
-`;
-module.exports = code;
-},{}],7:[function(require,module,exports){
-/**
- * Implement a single particle in the particles system.
- * Author: Ronen Ness.
- * Since: 2019.
-*/
-const THREE = require('./_three');
-const Utils = require('./utils')
-
-
-/**
- * A single particle metadata in the particles system.
- * We attach this to the particle's vertices when in system's geometry.
- */
-class Particle
-{
-    /**
-     * Create the particle.
-     * @param {ParticlesSystem} system The particles system this particle belongs to.
-     */
-    constructor(system)
-    {
-        this.system = system;
-        this.reset();
-    }
-
-    /**
-     * Reset the particle.    
-     */
-    reset()
-    {
-        var options = this.system.options.particles;
-
-        // reset particle age and if alive
-        this.age = 0;
-        this.finished = false;
-
-        // store gravity force
-        this.gravity = options.gravity;
-
-        // particle's velocity and velocity bonus
-        this.velocity = getConstOrRandomVector(options.velocity);
-        if (options.velocityBonus) { this.velocity.add(options.velocityBonus); }
-        
-        // particle's acceleration.
-        this.acceleration = getConstOrRandomVector(options.acceleration, true);
-        
-        // starting offset
-        this.position = getConstOrRandomVector(options.offset);
-
-        // set particle's ttl
-        this.ttl = Utils.getRandomWithSpread(options.ttl || 1, options.ttlExtra) || 1;
-
-        // set per-particle alpha
-        this.alpha = this.startAlpha = this.endAlpha = null;
-        this.startAlphaChangeAt = (options.startAlphaChangeAt || 0) / this.ttl;
-        if (options.fade) 
-        {
-            // const alpha throughout particle's life?
-            if (options.alpha !== undefined) {
-                this.alpha = Utils.randomizerOrValue(options.alpha);
-            }
-            // shifting alpha?
-            else {
-                this.startAlpha = Utils.randomizerOrValue(options.startAlpha);
-                this.endAlpha = Utils.randomizerOrValue(options.endAlpha);
-            }
-        } 
-   
-        // set per-particle coloring
-        this.colorize = Boolean(options.colorize);
-        this.color = this.startColor = this.endColor = null;
-        this.startColorChangeAt = (options.startColorChangeAt || 0) / this.ttl;
-        if (this.colorize) 
-        {
-            // const color throughout particle's life?
-            if (options.color) {
-                this.color = getConstOrRandomColor(options.color);
-            }
-            // shifting color?
-            else {
-                this.startColor = getConstOrRandomColor(options.startColor);
-                this.endColor = getConstOrRandomColor(options.endColor);
-            }
-        }
-
-        // set per-particle size
-        this.size = this.startSize = this.endSize = null;
-        this.startSizeChangeAt = (options.startSizeChangeAt || 0) / this.ttl;
-        if (options.scaling) 
-        {       
-            // const size throughout particle's life?
-            if (options.size !== undefined) {
-                this.size = Utils.randomizerOrValue(options.size);
-            }
-            // shifting size?
-            else {
-                this.startSize = Utils.randomizerOrValue(options.startSize);
-                this.endSize = Utils.randomizerOrValue(options.endSize);
-            }
-        } 
-        
-        // set per-particle rotation
-        this.rotation = this.rotationSpeed = null;
-        if (options.rotating) 
-        {
-            this.rotation = Utils.randomizerOrValue(options.rotation || 0);
-            this.rotationSpeed = Utils.randomizerOrValue(options.rotationSpeed || 0);
-        }
-
-        // used to keep constant world position
-        this.startWorldPosition = null;
-
-        // store on-update callback, if defined
-        this.onUpdate = options.onUpdate;
-
-        // call custom spawn method
-        if (options.onSpawn) {
-            options.onSpawn(this);
-        }
-    }
-
-    /**
-     * Update the particle (call this every frame).
-     * @param {*} index Particle index in system.
-     * @param {*} deltaTime Update delta time.
-     */
-    update(index, deltaTime)
-    {
-        // if finished, skip
-        if (this.finished) {
-            return;
-        }
-
-        // is it first update call?
-        var firstUpdate = this.age === 0;
-
-        // do first-update stuff
-        if (firstUpdate) 
-        {
-            // if its first update and use world position, store current world position
-            if (this.system.options.particles.worldPosition) {
-                this.startWorldPosition = this.system.getWorldPosition();
-            }
-
-            // set constant alpha
-            if (this.alpha !== null || this.startAlpha !== null) {
-                this.system.setAlpha(index, this.alpha || this.startAlpha);
-            }
-
-            // set constant color
-            if (this.color !== null || this.startColor !== null) {
-                this.system.setColor(index, this.color || this.startColor);
-            }
-
-            // set constant size
-            if (this.size !== null || this.startSize !== null) {
-                this.system.setSize(index, this.size || this.startSize);
-            }
-
-            // set start rotation
-            if (this.rotation !== null) {
-                this.system.setRotation(index, this.rotation);
-            }
-        }
-        // do normal updates
-        else
-        {
-            // set animated color
-            if (this.startColor && this.age >= this.startColorChangeAt) {
-                this.system.setColor(index, Utils.lerpColors(this.startColor, this.endColor, 
-                    this.startColorChangeAt ? ((this.age - this.startColorChangeAt) / (1-this.startColorChangeAt)) : this.age));
-            }
-
-            // set animated alpha
-            if (this.startAlpha != null && this.age >= this.startAlphaChangeAt) {
-                this.system.setAlpha(index, Utils.lerp(this.startAlpha, this.endAlpha, 
-                    this.startAlphaChangeAt ? ((this.age - this.startAlphaChangeAt) / (1-this.startAlphaChangeAt)) : this.age));
-            }
-
-            // set animated size
-            if (this.startSize != null && this.age >= this.startSizeChangeAt) {
-                this.system.setSize(index, Utils.lerp(this.startSize, this.endSize, 
-                    this.startSizeChangeAt ? ((this.age - this.startSizeChangeAt) / (1-this.startSizeChangeAt)) : this.age));
-            }
-        }
-
-        // add gravity force
-        if (this.gravity && this.velocity) {
-            this.velocity.y += this.gravity * deltaTime;
-        }
-
-        // set animated rotation
-        if (this.rotationSpeed) {
-            this.rotation += this.rotationSpeed * deltaTime;
-            this.system.setRotation(index, this.rotation);
-        }
-
-        // update position
-        if (this.velocity) {
-            this.position.x += this.velocity.x * deltaTime;
-            this.position.y += this.velocity.y * deltaTime;
-            this.position.z += this.velocity.z * deltaTime;
-        }
-        var positionToSet = this.position;
-
-        // to maintain world position
-        if (this.startWorldPosition) 
-        {
-            var systemPos = this.system.getWorldPosition();
-            systemPos.sub(this.startWorldPosition);
-            positionToSet = positionToSet.clone().sub(systemPos);
-        }
-
-        // set position in system
-        this.system.setPosition(index, positionToSet);
-
-        // update velocity
-        if (this.acceleration && this.velocity) {
-            this.velocity.x += this.acceleration.x * deltaTime;
-            this.velocity.y += this.acceleration.y * deltaTime;
-            this.velocity.z += this.acceleration.z * deltaTime;
-        }
-        
-        // update age. note: use ttl as factor, so that age is always between 0 and 1
-        this.age += deltaTime / this.ttl;
-
-        // call custom methods
-        if (this.onUpdate) {
-            this.onUpdate(this);
-        }
-
-        // is done? set as finished and continue to set final state
-        if (this.age > 1) {
-            this.age = 1;
-            this.finished = true;
-        }
-    }
-
-    /**
-     * Get particle's world position.
-     */
-    get worldPosition()
-    {
-        return this.system.getWorldPosition().add(this.position);
-    }
-}
-
-
-/**
- * Return either the value of a randomizer, a const value, or a default empty or null.
- */
-function getConstOrRandomVector(constValOrRandomizer, returnNullIfUndefined)
-{
-    if (!constValOrRandomizer) return (returnNullIfUndefined) ? null : new THREE.Vector3();
-    if (constValOrRandomizer.generate) return constValOrRandomizer.generate();
-    return constValOrRandomizer.clone();
-}
-
-
-/**
- * Return either the value of a randomizer, a const value, or a default empty or null.
- */
-function getConstOrRandomColor(constValOrRandomizer, returnNullIfUndefined)
-{
-    if (!constValOrRandomizer) return (returnNullIfUndefined) ? null : new THREE.Color(1, 1, 1);
-    if (constValOrRandomizer.generate) return constValOrRandomizer.generate();
-    return constValOrRandomizer.clone();
-}
-
-
-module.exports = Particle;
-},{"./_three":1,"./utils":15}],8:[function(require,module,exports){
-/**
- * Implement basic particles system.
- * Author: Ronen Ness.
- * Since: 2019.
-*/
-const THREE = require('./_three');
-const Particle = require('./particle');
-const ParticlesMaterial = require('./material/material');
-
-/**
- * Particles system.
- */
-class ParticlesSystem
-{
+  var ParticlesSystem = /*#__PURE__*/function () {
     /**
      * Create particles system.
      * @param {*} options Particles options.
@@ -682,744 +628,815 @@ class ParticlesSystem
      * @param {Boolean} options.system.depthWrite Should we perform depth write? (default to true).
      * @param {Boolean} options.system.depthTest Should we perform depth test? (default to true).
      */
-    constructor(options)
-    {
-        // store options
-        options.particles = options.particles || {worldPosition: true};
-        options.system = options.system || {};
-        this.options = options;
+    function ParticlesSystem(options) {
+      _classCallCheck(this, ParticlesSystem);
 
-        // to check if value is defined
-        var defined = (val) => { return (val !== undefined) && (val !== null); }
+      // store options
+      options.particles = options.particles || {
+        worldPosition: true
+      };
+      options.system = options.system || {};
+      this.options = options; // to check if value is defined
 
-        // get particle options
-        var poptions = options.particles;
-        
-        // do some internal cheating to replace const size with global size
-        if (typeof options.particles.size === "number") {
-            console.warn("Note: replaced 'size' with 'globalSize' property since its more efficient and provided size value was constant anyway.");
-            options.particles.globalSize = options.particles.size;
-            delete options.particles.size;
+      var defined = function defined(val) {
+        return val !== undefined && val !== null;
+      }; // get particle options
+
+
+      var poptions = options.particles; // do some internal cheating to replace const size with global size
+
+      if (typeof options.particles.size === "number") {
+        console.warn("Note: replaced 'size' with 'globalSize' property since its more efficient and provided size value was constant anyway.");
+        options.particles.globalSize = options.particles.size;
+        delete options.particles.size;
+      } // do some internal cheating to replace const color with global color
+
+
+      if (options.particles.color instanceof THREE__default['default'].Color) {
+        console.warn("Note: replaced 'color' with 'globalColor' property since its more efficient and you provided color value was constant anyway.");
+        options.particles.globalColor = options.particles.color;
+        delete options.particles.color;
+      } // set some internal flags
+
+
+      options.particles.fade = defined(poptions.startAlpha) || defined(poptions.alpha);
+      options.particles.rotating = defined(poptions.rotationSpeed) || defined(poptions.rotation);
+      options.particles.colorize = defined(poptions.color) || defined(poptions.startColor);
+      options.particles.scaling = defined(poptions.size) || defined(poptions.startSize); // validate alpha params
+
+      if (defined(poptions.startAlpha) && !defined(poptions.endAlpha)) {
+        throw new Error("When providing 'startAlpha' you must also provide 'endAlpha'!");
+      }
+
+      if (defined(poptions.startAlpha) && defined(poptions.alpha)) {
+        throw new Error("When providing 'alpha' you can't also provide 'startAlpha'!");
+      } // validate color params
+
+
+      if (defined(poptions.startColor) && !defined(poptions.endColor)) {
+        throw new Error("When providing 'startColor' you must also provide 'endColor'!");
+      }
+
+      if (defined(poptions.startColor) && defined(poptions.color)) {
+        throw new Error("When providing 'color' you can't also provide 'startColor'!");
+      } // validate size params
+
+
+      if (defined(poptions.startSize) && !defined(poptions.endSize)) {
+        throw new Error("When providing 'startSize' you must also provide 'endSize'!");
+      }
+
+      if (defined(poptions.startSize) && defined(poptions.size)) {
+        throw new Error("When providing 'size' you can't also provide 'startSize'!");
+      } // get particles count
+
+
+      var particleCount = options.system.particlesCount || 10; // get blending mode
+
+      var blending = options.particles.blending || "opaque"; // get threejs blending mode
+
+      var threeBlend = {
+        "opaque": THREE__default['default'].NoBlending,
+        "additive": THREE__default['default'].AdditiveBlending,
+        "multiply": THREE__default['default'].MultiplyBlending,
+        "blend": THREE__default['default'].NormalBlending
+      }[blending]; // set emitters
+
+      this._emitters = [];
+
+      if (options.system.emitters) {
+        if (options.system.emitters instanceof Array) {
+          for (var i = 0; i < options.system.emitters.length; ++i) {
+            this.addEmitter(options.system.emitters[i]);
+          }
+        } else {
+          this.addEmitter(options.system.emitters);
+        }
+      } // has transparency?
+
+
+      var isTransparent = blending !== "opaque"; // create the particle geometry
+
+      this.particlesGeometry = new THREE__default['default'].BufferGeometry(); // set perspective mode
+
+      var perspective = options.system.perspective !== undefined ? Boolean(options.system.perspective) : true; // create particles material
+
+      var pMaterial = new material({
+        size: options.particles.size || 10,
+        color: options.particles.globalColor || 0xffffff,
+        blending: threeBlend,
+        perspective: perspective,
+        transparent: isTransparent,
+        map: options.particles.texture,
+        perParticleColor: Boolean(options.particles.colorize),
+        alphaTest: blending === "blend" && defined(options.particles.texture),
+        constSize: defined(options.particles.globalSize) ? options.particles.globalSize : null,
+        depthWrite: defined(options.system.depthWrite) ? options.system.depthWrite : true,
+        depthTest: defined(options.system.depthTest) ? options.system.depthTest : true,
+        perParticleRotation: options.particles.rotating
+      }); // store material for later usage
+
+      this.material = pMaterial; // store speed factor
+
+      this.speed = options.system.speed || 1; // set system starting ttl and other params
+
+      this.reset(); // dead particles and alive particles lists
+
+      this._aliveParticles = [];
+      this._deadParticles = []; // create all particles + set geometry attributes
+
+      var vertices = new Float32Array(particleCount * 3);
+      var colors = options.particles.colorize ? new Float32Array(particleCount * 3) : null;
+      var alphas = options.particles.fade ? new Float32Array(particleCount * 1) : null;
+      var sizes = options.particles.scaling ? new Float32Array(particleCount * 1) : null;
+      var rotations = options.particles.rotating ? new Float32Array(particleCount * 1) : null;
+
+      for (var p = 0; p < particleCount; p++) {
+        var index = p * 3;
+        vertices[index] = vertices[index + 1] = vertices[index + 2] = 0;
+
+        if (colors) {
+          colors[index] = colors[index + 1] = colors[index + 2] = 1;
         }
 
-        // do some internal cheating to replace const color with global color
-        if (options.particles.color instanceof THREE.Color) {
-            console.warn("Note: replaced 'color' with 'globalColor' property since its more efficient and you provided color value was constant anyway.");
-            options.particles.globalColor = options.particles.color;
-            delete options.particles.color;
+        if (alphas) {
+          alphas[p] = 1;
         }
 
-        // set some internal flags
-        options.particles.fade = (defined(poptions.startAlpha) || defined(poptions.alpha));
-        options.particles.rotating = (defined(poptions.rotationSpeed) || defined(poptions.rotation));
-        options.particles.colorize = (defined(poptions.color) || defined(poptions.startColor));
-        options.particles.scaling = (defined(poptions.size) || defined(poptions.startSize));
-
-        // validate alpha params
-        if (defined(poptions.startAlpha) && !defined(poptions.endAlpha)) { throw new Error("When providing 'startAlpha' you must also provide 'endAlpha'!"); }
-        if (defined(poptions.startAlpha) && defined(poptions.alpha)) { throw new Error("When providing 'alpha' you can't also provide 'startAlpha'!"); }
-   
-        // validate color params
-        if (defined(poptions.startColor) && !defined(poptions.endColor)) { throw new Error("When providing 'startColor' you must also provide 'endColor'!"); }
-        if (defined(poptions.startColor) && defined(poptions.color)) { throw new Error("When providing 'color' you can't also provide 'startColor'!"); }
-
-        // validate size params
-        if (defined(poptions.startSize) && !defined(poptions.endSize)) { throw new Error("When providing 'startSize' you must also provide 'endSize'!"); }
-        if (defined(poptions.startSize) && defined(poptions.size)) { throw new Error("When providing 'size' you can't also provide 'startSize'!"); }
-
-        // get particles count
-        var particleCount = options.system.particlesCount || 10;
-
-        // get blending mode
-        var blending = options.particles.blending || "opaque";
-
-        // get threejs blending mode
-        var threeBlend = {
-            "opaque": THREE.NoBlending,
-            "additive": THREE.AdditiveBlending,
-            "multiply": THREE.MultiplyBlending,
-            "blend": THREE.NormalBlending,
-        }[blending];
-
-        // set emitters
-        this._emitters = [];
-        if (options.system.emitters) {
-            if (options.system.emitters instanceof Array) {
-                for (var i = 0; i < options.system.emitters.length; ++i) {
-                    this.addEmitter(options.system.emitters[i]);
-                }
-            }
-            else {
-                this.addEmitter(options.system.emitters);
-            }
+        if (sizes) {
+          sizes[p] = 1;
         }
 
-        // has transparency?
-        var isTransparent = (blending !== "opaque");
-
-        // create the particle geometry
-        this.particlesGeometry = new THREE.BufferGeometry();
-
-        // set perspective mode
-        var perspective = options.system.perspective !== undefined ? Boolean(options.system.perspective) : true;
-
-        // create particles material
-        var pMaterial = new ParticlesMaterial({
-            size: options.particles.size || 10,
-            color: options.particles.globalColor || 0xffffff,
-            blending: threeBlend,
-            perspective: perspective,
-            transparent: isTransparent,
-            map: options.particles.texture,
-            perParticleColor: Boolean(options.particles.colorize),
-            alphaTest: (blending === "blend") && defined(options.particles.texture),
-            constSize: defined(options.particles.globalSize) ? options.particles.globalSize : null,
-            depthWrite: defined(options.system.depthWrite) ? options.system.depthWrite : true,
-            depthTest: defined(options.system.depthTest) ? options.system.depthTest : true,
-            perParticleRotation: options.particles.rotating,
-        });
-
-        // store material for later usage
-        this.material = pMaterial;
-        
-        // store speed factor
-        this.speed = options.system.speed || 1;
-
-        // set system starting ttl and other params
-        this.reset();
-
-        // dead particles and alive particles lists
-        this._aliveParticles = [];
-        this._deadParticles = [];
-
-        // create all particles + set geometry attributes
-        var vertices = new Float32Array(particleCount * 3);
-        var colors = options.particles.colorize ? new Float32Array(particleCount * 3) : null;
-        var alphas = options.particles.fade ? new Float32Array( particleCount * 1 ) : null;
-        var sizes = options.particles.scaling ? new Float32Array( particleCount * 1 ) : null;
-        var rotations = options.particles.rotating ? new Float32Array( particleCount * 1 ) : null;
-        for (var p = 0; p < particleCount; p++) 
-        {
-            var index = p * 3;
-            vertices[index] = vertices[index + 1] = vertices[index + 2] = 0;
-            if (colors) { colors[index] = colors[index + 1] = colors[index + 2] = 1; }
-            if (alphas) { alphas[p] = 1; }
-            if (sizes) { sizes[p] = 1; }
-            if (rotations) { rotations[p] = 0; }
-            this._deadParticles.push(new Particle(this));
+        if (rotations) {
+          rotations[p] = 0;
         }
-        this.particlesGeometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-        if (alphas) { this.particlesGeometry.setAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) ); }
-        if (colors) { this.particlesGeometry.setAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) ); }
-        if (sizes) { this.particlesGeometry.setAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) ); }
-        if (rotations) { this.particlesGeometry.setAttribute( 'rotation', new THREE.BufferAttribute( rotations, 1 ) ); }
-        this.particlesGeometry.setDrawRange(0, 0);
 
-        // set scale
-        this.material.setBaseScale(options.system.scale || 400);
+        this._deadParticles.push(new particle(this));
+      }
 
-        // create the particles system
-        var particleSystem = new THREE.Points(this.particlesGeometry, this.material.material);
-        particleSystem.sortParticles = isTransparent;
+      this.particlesGeometry.setAttribute('position', new THREE__default['default'].BufferAttribute(vertices, 3));
 
-		// set default render order
-		if (ParticlesSystem.defaultRenderOrder !== undefined) {
-			particleSystem.renderOrder = ParticlesSystem.defaultRenderOrder;
-		}
+      if (alphas) {
+        this.particlesGeometry.setAttribute('alpha', new THREE__default['default'].BufferAttribute(alphas, 1));
+      }
 
-        // store particles system
-        this.particleSystem = particleSystem;
+      if (colors) {
+        this.particlesGeometry.setAttribute('color', new THREE__default['default'].BufferAttribute(colors, 3));
+      }
 
-        // to make sure first update will update everything
-        this._positionDirty = true;
-        this._colorsDirty = Boolean(colors);
-        this._alphaDirty = Boolean(alphas);
-        this._rotateDirty = Boolean(rotations);
-        
-        // add it to the parent container
-        if (options.container) {
-            this.addTo(options.container);
-        }
+      if (sizes) {
+        this.particlesGeometry.setAttribute('size', new THREE__default['default'].BufferAttribute(sizes, 1));
+      }
+
+      if (rotations) {
+        this.particlesGeometry.setAttribute('rotation', new THREE__default['default'].BufferAttribute(rotations, 1));
+      }
+
+      this.particlesGeometry.setDrawRange(0, 0); // set scale
+
+      this.material.setBaseScale(options.system.scale || 400); // create the particles system
+
+      var particleSystem = new THREE__default['default'].Points(this.particlesGeometry, this.material.material);
+      particleSystem.sortParticles = isTransparent; // set default render order
+
+      if (ParticlesSystem.defaultRenderOrder !== undefined) {
+        particleSystem.renderOrder = ParticlesSystem.defaultRenderOrder;
+      } // store particles system
+
+
+      this.particleSystem = particleSystem; // to make sure first update will update everything
+
+      this._positionDirty = true;
+      this._colorsDirty = Boolean(colors);
+      this._alphaDirty = Boolean(alphas);
+      this._rotateDirty = Boolean(rotations); // add it to the parent container
+
+      if (options.container) {
+        this.addTo(options.container);
+      }
     }
-    
     /**
      * Add emitter to this particles system.
      */
-    addEmitter(emitter)
-    {
-        this._emitters.push(emitter);
-    }
 
-    /**
-     * Dispose the entire system.
-     */
-    dispose()
-    {
+
+    _createClass(ParticlesSystem, [{
+      key: "addEmitter",
+      value: function addEmitter(emitter) {
+        this._emitters.push(emitter);
+      }
+      /**
+       * Dispose the entire system.
+       */
+
+    }, {
+      key: "dispose",
+      value: function dispose() {
         this.particlesGeometry.dispose();
         this.material.dispose();
-    }
+      }
+      /**
+       * Return true when ttl is expired and there are no more alive particles in system.
+       */
 
-    /**
-     * Return true when ttl is expired and there are no more alive particles in system.
-     */
-    get finished()
-    {
-        return this.ttlExpired && (this.particlesCount === 0);
-    }
+    }, {
+      key: "finished",
+      get: function get() {
+        return this.ttlExpired && this.particlesCount === 0;
+      }
+      /**
+       * Get if this system's ttl is expired.
+       */
 
-    /**
-     * Get if this system's ttl is expired.
-     */
-    get ttlExpired()
-    {
-        return (this.ttl !== undefined) && (this.ttl <= 0);
-    }
+    }, {
+      key: "ttlExpired",
+      get: function get() {
+        return this.ttl !== undefined && this.ttl <= 0;
+      }
+      /**
+       * Reset particles system ttl.
+       */
 
-    /**
-     * Reset particles system ttl.
-     */
-    reset()
-    {
+    }, {
+      key: "reset",
+      value: function reset() {
         this.ttl = this.options.system.ttl;
         this.age = 0;
         this._timeToUpdateBS = 0;
-    }
+      }
+      /**
+       * Get system's world position.
+       */
 
-    /**
-     * Get system's world position.
-     */
-    getWorldPosition()
-    {
-        var ret = new THREE.Vector3();
+    }, {
+      key: "getWorldPosition",
+      value: function getWorldPosition() {
+        var ret = new THREE__default['default'].Vector3();
         this.particleSystem.getWorldPosition(ret);
         return ret;
-    }
+      }
+      /**
+       * Add the particles system to scene or container.
+       * @param {THREE.Object3D} container Container to add system to.
+       */
 
-    /**
-     * Add the particles system to scene or container.
-     * @param {THREE.Object3D} container Container to add system to.
-     */
-    addTo(container)
-    {
+    }, {
+      key: "addTo",
+      value: function addTo(container) {
         container.add(this.particleSystem);
-    }
+      }
+      /**
+       * Set a particle's color value.
+       */
 
-    /**
-     * Set a particle's color value.
-     */
-    setColor(index, color)
-    {
+    }, {
+      key: "setColor",
+      value: function setColor(index, color) {
         index *= 3;
         var colors = this.particlesGeometry.attributes.color.array;
         colors[index] = color.r;
         colors[index + 1] = color.g;
         colors[index + 2] = color.b;
         this._colorsDirty = true;
-    }
+      }
+      /**
+       * Set a particle's position.
+       */
 
-    /**
-     * Set a particle's position.
-     */
-    setPosition(index, position)
-    {
+    }, {
+      key: "setPosition",
+      value: function setPosition(index, position) {
         index *= 3;
         var vertices = this.particlesGeometry.attributes.position.array;
         vertices[index] = position.x;
         vertices[index + 1] = position.y;
         vertices[index + 2] = position.z;
         this._positionDirty = true;
-    }
+      }
+      /**
+       * Set particle's alpha.
+       */
 
-    /**
-     * Set particle's alpha.
-     */
-    setAlpha(index, value)
-    {
+    }, {
+      key: "setAlpha",
+      value: function setAlpha(index, value) {
         this.particlesGeometry.attributes.alpha.array[index] = value;
         this._alphaDirty = true;
-    }
+      }
+      /**
+       * Set particle's rotation.
+       */
 
-    /**
-     * Set particle's rotation.
-     */
-    setRotation(index, value)
-    {
+    }, {
+      key: "setRotation",
+      value: function setRotation(index, value) {
         this.particlesGeometry.attributes.rotation.array[index] = value;
         this._rotateDirty = true;
-    }
+      }
+      /**
+       * Set particle's size.
+       */
 
-    /**
-     * Set particle's size.
-     */
-    setSize(index, value)
-    {
+    }, {
+      key: "setSize",
+      value: function setSize(index, value) {
         this.particlesGeometry.attributes.size.array[index] = value;
         this._sizeDirty = true;
-    }
+      }
+      /**
+       * Get how many particles this system currently shows.
+       */
 
-    /**
-     * Get how many particles this system currently shows.
-     */
-    get particlesCount()
-    {
+    }, {
+      key: "particlesCount",
+      get: function get() {
         return this._aliveParticles.length;
-    }
+      }
+      /**
+       * Get max particles count.
+       */
 
-    /**
-     * Get max particles count.
-     */
-    get maxParticlesCount()
-    {
+    }, {
+      key: "maxParticlesCount",
+      get: function get() {
         return this._aliveParticles.length + this._deadParticles.length;
-    }
+      }
+      /**
+       * If ttl is expired and there are no more alive particles, remove system and dispose it.
+       * @returns True if removed & disposed, false if still alive.
+       */
 
-    /**
-     * If ttl is expired and there are no more alive particles, remove system and dispose it.
-     * @returns True if removed & disposed, false if still alive.
-     */
-    removeAndDisposeIfFinished()
-    {
-        if (this.finished)
-        {
-            this.removeSelf();
-            this.dispose();
-            return true;
+    }, {
+      key: "removeAndDisposeIfFinished",
+      value: function removeAndDisposeIfFinished() {
+        if (this.finished) {
+          this.removeSelf();
+          this.dispose();
+          return true;
         }
-        return false;
-    }
 
-    /**
-     * Update particles system.
-     */
-    update(deltaTime)
-    {
+        return false;
+      }
+      /**
+       * Update particles system.
+       */
+
+    }, {
+      key: "update",
+      value: function update(deltaTime) {
         // if deltaTime is undefined, set automatically
         if (deltaTime === undefined) {
-            var timeNow = (new Date()).getTime() / 1000.0;
-            deltaTime = (timeNow - this._lastTime) || 0;
-            this._lastTime = timeNow;
-        }
+          var timeNow = new Date().getTime() / 1000.0;
+          deltaTime = timeNow - this._lastTime || 0;
+          this._lastTime = timeNow;
+        } // delta time is 0? skip
 
-        // delta time is 0? skip
+
         if (deltaTime === 0) {
-            return;
-        }
+          return;
+        } // update ttl
 
-        // update ttl
+
         if (this.ttl !== undefined && this.ttl > 0) {
-            this.ttl -= deltaTime;
-        }
+          this.ttl -= deltaTime;
+        } // apply speed
 
-        // apply speed
-        deltaTime *= this.speed;
 
-        // store last delta time
+        deltaTime *= this.speed; // store last delta time
+
         this.dt = deltaTime;
-        this.age += deltaTime;
+        this.age += deltaTime; // to check if number of particles changed
 
-        // to check if number of particles changed
-        var prevParticlesCount = this._aliveParticles.length;
+        var prevParticlesCount = this._aliveParticles.length; // generate particles (unless ttl expired)
 
-        // generate particles (unless ttl expired)
         if (!this.ttlExpired) {
-            for (var i = 0; i < this._emitters.length; ++i) {
-                var toSpawn = this._emitters[i].update(deltaTime, this);
-                if (toSpawn) { 
-                    this.spawnParticles(toSpawn); 
-                }
+          for (var i = 0; i < this._emitters.length; ++i) {
+            var toSpawn = this._emitters[i].update(deltaTime, this);
+
+            if (toSpawn) {
+              this.spawnParticles(toSpawn);
             }
-        }
+          }
+        } // update particles
 
-        // update particles
-        for (var i = this._aliveParticles.length - 1; i >= 0; --i)
-        {
-            // update particle
-            var particle = this._aliveParticles[i];
-            particle.update(i, deltaTime);
 
-            // finished? remove it
-            if (particle.finished) {
-                this._aliveParticles.splice(i, 1);
-                this._deadParticles.push(particle);
-            }
-        }
+        for (var i = this._aliveParticles.length - 1; i >= 0; --i) {
+          // update particle
+          var particle = this._aliveParticles[i];
+          particle.update(i, deltaTime); // finished? remove it
 
-        // hide invisible vertices
+          if (particle.finished) {
+            this._aliveParticles.splice(i, 1);
+
+            this._deadParticles.push(particle);
+          }
+        } // hide invisible vertices
+
+
         if (prevParticlesCount !== this._aliveParticles.length) {
-            this.particlesGeometry.setDrawRange(0, this._aliveParticles.length);
-        }
-        
-        // set vertices dirty flag
+          this.particlesGeometry.setDrawRange(0, this._aliveParticles.length);
+        } // set vertices dirty flag
+
+
         this.particlesGeometry.attributes.position.needsUpdate = this._positionDirty;
         this._needBoundingSphereUpdate = this._needBoundingSphereUpdate || this._positionDirty;
-        this._positionDirty = false;
-        
-        // set colors dirty flag
+        this._positionDirty = false; // set colors dirty flag
+
         if (this._colorsDirty) {
-            this.particlesGeometry.attributes.color.needsUpdate = true;
-            this._colorsDirty = false;
-        }
-        
-        // set alphas dirty flag
+          this.particlesGeometry.attributes.color.needsUpdate = true;
+          this._colorsDirty = false;
+        } // set alphas dirty flag
+
+
         if (this._alphaDirty) {
-            this.particlesGeometry.attributes.alpha.needsUpdate = true;
-            this._alphaDirty = false;
-        }
+          this.particlesGeometry.attributes.alpha.needsUpdate = true;
+          this._alphaDirty = false;
+        } // set size dirty flag
 
-        // set size dirty flag
+
         if (this._sizeDirty) {
-            this.particlesGeometry.attributes.size.needsUpdate = true;
-            this._sizeDirty = false;
-        }
+          this.particlesGeometry.attributes.size.needsUpdate = true;
+          this._sizeDirty = false;
+        } // set rotation dirty flag
 
-        // set rotation dirty flag
+
         if (this._rotateDirty) {
-            this.particlesGeometry.attributes.rotation.needsUpdate = true;
-            this._rotateDirty = false;
-        }
+          this.particlesGeometry.attributes.rotation.needsUpdate = true;
+          this._rotateDirty = false;
+        } // update bounding sphere
 
-        // update bounding sphere
-        if (this._needBoundingSphereUpdate) { 
-            this._timeToUpdateBS -= deltaTime;
-            if (this._timeToUpdateBS <= 0) {
-                this._timeToUpdateBS = 0.2;
-                this.particlesGeometry.computeBoundingSphere();
-            }
-        }
 
-        // if finished, stop here
+        if (this._needBoundingSphereUpdate) {
+          this._timeToUpdateBS -= deltaTime;
+
+          if (this._timeToUpdateBS <= 0) {
+            this._timeToUpdateBS = 0.2;
+            this.particlesGeometry.computeBoundingSphere();
+          }
+        } // if finished, stop here
+
+
         if (this.finished) {
-            return;
-        }
+          return;
+        } // call optional update
 
-        // call optional update
+
         if (this.options.system.onUpdate) {
-            this.options.system.onUpdate(this);
+          this.options.system.onUpdate(this);
         }
-        
-    }
+      }
+      /**
+       * Spawn particles.
+       * @param {Number} quantity Number of particles to spawn. If exceed max available particles in system, skip.
+       */
 
-    /**
-     * Spawn particles.
-     * @param {Number} quantity Number of particles to spawn. If exceed max available particles in system, skip.
-     */
-    spawnParticles(quantity)
-    {
+    }, {
+      key: "spawnParticles",
+      value: function spawnParticles(quantity) {
         // spawn particles
-        for (var i = 0; i < quantity; ++i) 
-        {
-            // no available dead particles? skip
-            if (this._deadParticles.length === 0) { 
-                return;
-            }
+        for (var i = 0; i < quantity; ++i) {
+          // no available dead particles? skip
+          if (this._deadParticles.length === 0) {
+            return;
+          } // spawn particle
 
-            // spawn particle
-            var particle = this._deadParticles.pop();
-            particle.reset();
-            this._aliveParticles.push(particle);
+
+          var particle = this._deadParticles.pop();
+
+          particle.reset();
+
+          this._aliveParticles.push(particle);
         }
+      }
+      /**
+       * Remove particles system from its parent.
+       */
+
+    }, {
+      key: "removeSelf",
+      value: function removeSelf() {
+        if (this.particleSystem.parent) {
+          this.particleSystem.parent.remove(this.particleSystem);
+        }
+      }
+    }]);
+
+    return ParticlesSystem;
+  }(); // override this to set default rendering order to all particle systems
+
+
+  ParticlesSystem.defaultRenderOrder = undefined; // export the particles system
+
+  var particles_system = ParticlesSystem;
+
+  var randomizerOrValue = utils.randomizerOrValue;
+  /**
+   * Emitter class to determine rate of particles generation.
+   */
+
+  var Emitter = /*#__PURE__*/function () {
+    /**
+     * Create the emitter class.
+     * @param {*} options Emitter options.
+     * @param {*} options.onSpawnBurst Burst of particles when particle system starts; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random numbers.
+     * @param {*} options.onInterval Burst of particles every interval; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random numbers.
+     * @param {Number} options.interval Spawn interval time, in seconds; either a constant value (Number) or a Partykals.Randomizers.Randomizer instance to create random numbers.
+     * @param {Number} options.detoretingMinTtl If provided and particle system's ttl is below this value, will start emitting less and less until stopping completely.
+     */
+    function Emitter(options) {
+      _classCallCheck(this, Emitter);
+
+      this.options = options;
+      options.interval = options.interval || 1;
+      this.age = 0;
+      this.timeToSpawn = Math.random() * randomizerOrValue(options.interval);
+    }
+    /**
+     * Update emitter and return how many particles should be generated this frame.
+     */
+
+
+    _createClass(Emitter, [{
+      key: "update",
+      value: function update(deltaTime, system) {
+        // particles to generate
+        var ret = 0; // first update? do burst
+
+        if (this.age === 0 && this.options.onSpawnBurst) {
+          ret += randomizerOrValue(this.options.onSpawnBurst);
+        } // update age
+
+
+        this.age += deltaTime; // no interval emitting? skip
+
+        if (!this.options.onInterval) {
+          return ret;
+        } // check if inverval expired
+
+
+        this.timeToSpawn -= deltaTime;
+
+        if (this.timeToSpawn <= 0) {
+          this.timeToSpawn = randomizerOrValue(this.options.interval);
+          ret += randomizerOrValue(this.options.onInterval);
+        } // do detoration
+
+
+        if (this.options.detoretingMinTtl && system.ttl < this.options.detoretingMinTtl) {
+          var detorateFactor = system.ttl / this.options.detoretingMinTtl;
+          ret *= detorateFactor;
+        } // return number of particles to generate
+
+
+        return ret;
+      }
+    }]);
+
+    return Emitter;
+  }(); // export the emitter class
+
+
+  var emitter = Emitter;
+
+  /**
+   * Define interface for a helper class to generate random vectors and colors.
+   * Author: Ronen Ness.
+   * Since: 2019.
+  */
+
+  /**
+   * Base class for all vector randomizers.
+   */
+  var Randomizer = /*#__PURE__*/function () {
+    function Randomizer() {
+      _classCallCheck(this, Randomizer);
     }
 
-    /**
-     * Remove particles system from its parent.
-     */
-    removeSelf() 
-    {
-        if (this.particleSystem.parent) { 
-            this.particleSystem.parent.remove(this.particleSystem); 
-        }
-    };
-}
+    _createClass(Randomizer, [{
+      key: "generate",
+      value:
+      /**
+       * Generate and return a random value.
+       * This is the main method to implement.
+       */
+      function generate() {
+        throw new Error("Not implemented.");
+      }
+    }]);
 
-// override this to set default rendering order to all particle systems
-ParticlesSystem.defaultRenderOrder = undefined;
+    return Randomizer;
+  }(); // export the base class
 
-// export the particles system
-module.exports = ParticlesSystem;
 
-},{"./_three":1,"./material/material":4,"./particle":7}],9:[function(require,module,exports){
-/**
- * Generate vectors within a 3d box.
- * Author: Ronen Ness.
- * Since: 2019.
-*/
-const THREE = require('./../_three');
-const Randomizer = require('./randomizer');
-const Utils = require('../utils');
+  var randomizer = Randomizer;
 
-/**
- * Box vector randomizer.
- */
-class BoxRandomizer extends Randomizer
-{
+  /**
+   * Box vector randomizer.
+   */
+
+  var BoxRandomizer = /*#__PURE__*/function (_Randomizer) {
+    _inherits(BoxRandomizer, _Randomizer);
+
+    var _super = _createSuper(BoxRandomizer);
+
     /**
      * Create the box randomizer from min and max vectors to randomize between.
      */
-    constructor(min, max)
-    {
-        super();
-        this.min = min || new THREE.Vector3(-1, -1, -1);
-        this.max = max || new THREE.Vector3(1, 1, 1);
+    function BoxRandomizer(min, max) {
+      var _this;
+
+      _classCallCheck(this, BoxRandomizer);
+
+      _this = _super.call(this);
+      _this.min = min || new THREE__default['default'].Vector3(-1, -1, -1);
+      _this.max = max || new THREE__default['default'].Vector3(1, 1, 1);
+      return _this;
     }
-    
     /**
      * Generate a random vector.
      */
-    generate()
-    {
-        return Utils.getRandomVectorBetween(this.min, this.max);
-    }
-}
-
-// export the randomizer class
-module.exports = BoxRandomizer;
-},{"../utils":15,"./../_three":1,"./randomizer":13}],10:[function(require,module,exports){
-/**
- * Generate vectors within a 3d box.
- * Author: Ronen Ness.
- * Since: 2019.
-*/
-const THREE = require('./../_three');
-const Randomizer = require('./randomizer');
-const Utils = require('../utils');
-
-/**
- * Box vector randomizer.
- */
-class ColorsRandomizer extends Randomizer
-{
-    /**
-     * Create the box randomizer from min and max colors to randomize between.
-     */
-    constructor(min, max)
-    {
-        super();
-        this.min = min || new THREE.Color(0, 0, 0);
-        this.max = max || new THREE.Color(1, 1, 1);
-    }
-    
-    /**
-     * Generate a random color.
-     */
-    generate()
-    {
-        return Utils.getRandomColorBetween(this.min, this.max);
-    }
-}
-
-// export the randomizer class
-module.exports = ColorsRandomizer;
-},{"../utils":15,"./../_three":1,"./randomizer":13}],11:[function(require,module,exports){
-/**
- * Module main entry point.
- * Author: Ronen Ness.
- * Since: 2019.
- */
-
-module.exports = {
-    Randomizer: require('./randomizer'),
-    BoxRandomizer: require('./box_randomizer'),
-    SphereRandomizer: require('./sphere_randomizer'),
-    ColorsRandomizer: require('./colors_randomizer'),
-    MinMaxRandomizer: require('./minmax_randomizer'),
-}
-},{"./box_randomizer":9,"./colors_randomizer":10,"./minmax_randomizer":12,"./randomizer":13,"./sphere_randomizer":14}],12:[function(require,module,exports){
-/**
- * Generate numbers between min and max.
- * Author: Ronen Ness.
- * Since: 2019.
-*/
-const Randomizer = require('./randomizer');
-const Utils = require('../utils');
 
 
-/**
- * Min-Max number randomizer.
- */
-class MinMaxRandomizer extends Randomizer
-{
-    /**
-     * Create the min-max randomizer from min and max.
-     */
-    constructor(min, max)
-    {
-        super();
-        this.min = min;
-        this.max = max;
-    }
-    
-    /**
-     * Generate a random number.
-     */
-    generate()
-    {
-        return Utils.getRandomBetween(this.min, this.max);
-    }
-}
+    _createClass(BoxRandomizer, [{
+      key: "generate",
+      value: function generate() {
+        return utils.getRandomVectorBetween(this.min, this.max);
+      }
+    }]);
 
-// export the randomizer class
-module.exports = MinMaxRandomizer;
-},{"../utils":15,"./randomizer":13}],13:[function(require,module,exports){
-/**
- * Define interface for a helper class to generate random vectors and colors.
- * Author: Ronen Ness.
- * Since: 2019.
-*/
+    return BoxRandomizer;
+  }(randomizer); // export the randomizer class
 
-/**
- * Base class for all vector randomizers.
- */
-class Randomizer
-{
-    /**
-     * Generate and return a random value.
-     * This is the main method to implement.
-     */
-    generate()
-    {
-        throw new Error("Not implemented.");
-    }
-}
 
-// export the base class
-module.exports = Randomizer;
-},{}],14:[function(require,module,exports){
-/**
- * Generate vectors within a 3d sphere.
- * Author: Ronen Ness.
- * Since: 2019.
-*/
-const THREE = require('../_three');
-const Randomizer = require('./randomizer');
-const Utils = require('../utils');
+  var box_randomizer = BoxRandomizer;
 
-// random between -1 and 1.
-function randMinusToOne()
-{
+  function randMinusToOne() {
     return Math.random() * 2 - 1;
-}
+  }
+  /**
+   * Sphere vector randomizer.
+   */
 
-/**
- * Sphere vector randomizer.
- */
-class SphereRandomizer extends Randomizer
-{
+
+  var SphereRandomizer = /*#__PURE__*/function (_Randomizer) {
+    _inherits(SphereRandomizer, _Randomizer);
+
+    var _super = _createSuper(SphereRandomizer);
+
     /**
      * Create the sphere randomizer from radius and optional scaler.
      */
-    constructor(maxRadius, minRadius, scaler, minVector, maxVector)
-    {
-        super();
-        this.maxRadius = maxRadius || 1;
-        this.minRadius = minRadius || 0;
-        this.scaler = scaler;
-        this.minVector = minVector;
-        this.maxVector = maxVector;
+    function SphereRandomizer(maxRadius, minRadius, scaler, minVector, maxVector) {
+      var _this;
+
+      _classCallCheck(this, SphereRandomizer);
+
+      _this = _super.call(this);
+      _this.maxRadius = maxRadius || 1;
+      _this.minRadius = minRadius || 0;
+      _this.scaler = scaler;
+      _this.minVector = minVector;
+      _this.maxVector = maxVector;
+      return _this;
     }
-    
     /**
      * Generate a random vector.
      */
-    generate()
-    {
-        // create random vector
-        var ret = new THREE.Vector3(randMinusToOne(), randMinusToOne(), randMinusToOne());
 
-        // clamp values
+
+    _createClass(SphereRandomizer, [{
+      key: "generate",
+      value: function generate() {
+        // create random vector
+        var ret = new THREE__default['default'].Vector3(randMinusToOne(), randMinusToOne(), randMinusToOne()); // clamp values
+
         if (this.minVector || this.maxVector) {
-            ret.clamp(this.minVector || new THREE.Vector3(-1,-1,-1), this.maxVector || new THREE.Vector3(1,1,1));
+          ret.clamp(this.minVector || new THREE__default['default'].Vector3(-1, -1, -1), this.maxVector || new THREE__default['default'].Vector3(1, 1, 1));
+        } // normalize and multiply by radius
+
+
+        ret.normalize().multiplyScalar(utils.getRandomBetween(this.minRadius, this.maxRadius)); // apply scaler
+
+        if (this.scaler) {
+          ret.multiply(this.scaler);
         }
 
-        // normalize and multiply by radius
-        ret.normalize().multiplyScalar( Utils.getRandomBetween(this.minRadius, this.maxRadius) );
-
-        // apply scaler
-        if (this.scaler) { ret.multiply(this.scaler); }
         return ret;
+      }
+    }]);
+
+    return SphereRandomizer;
+  }(randomizer); // export the randomizer class
+
+
+  var sphere_randomizer = SphereRandomizer;
+
+  /**
+   * Box vector randomizer.
+   */
+
+  var ColorsRandomizer = /*#__PURE__*/function (_Randomizer) {
+    _inherits(ColorsRandomizer, _Randomizer);
+
+    var _super = _createSuper(ColorsRandomizer);
+
+    /**
+     * Create the box randomizer from min and max colors to randomize between.
+     */
+    function ColorsRandomizer(min, max) {
+      var _this;
+
+      _classCallCheck(this, ColorsRandomizer);
+
+      _this = _super.call(this);
+      _this.min = min || new THREE__default['default'].Color(0, 0, 0);
+      _this.max = max || new THREE__default['default'].Color(1, 1, 1);
+      return _this;
     }
-}
+    /**
+     * Generate a random color.
+     */
 
-// export the randomizer class
-module.exports = SphereRandomizer;
-},{"../_three":1,"../utils":15,"./randomizer":13}],15:[function(require,module,exports){
-/**
- * Implement a single particle in the particles system.
- * Author: Ronen Ness.
- * Since: 2019.
-*/
-const THREE = require('./_three');
 
-module.exports = {
+    _createClass(ColorsRandomizer, [{
+      key: "generate",
+      value: function generate() {
+        return utils.getRandomColorBetween(this.min, this.max);
+      }
+    }]);
+
+    return ColorsRandomizer;
+  }(randomizer); // export the randomizer class
+
+
+  var colors_randomizer = ColorsRandomizer;
+
+  /**
+   * Min-Max number randomizer.
+   */
+
+  var MinMaxRandomizer = /*#__PURE__*/function (_Randomizer) {
+    _inherits(MinMaxRandomizer, _Randomizer);
+
+    var _super = _createSuper(MinMaxRandomizer);
 
     /**
-     * Returns a random number between min (inclusive) and max (exclusive)
+     * Create the min-max randomizer from min and max.
      */
-    getRandomBetween: function(min, max) {
-        return Math.random() * (max - min) + min;
-    },
+    function MinMaxRandomizer(min, max) {
+      var _this;
 
-    /**
-     * Get random between baseVal and baseVal + extraRandom.
-     * If 'extraRandom' is not defined, will just return baseVal.
-     * If baseVal is not defined, will return white.
-     */
-    getRandomWithSpread: function(baseVal, extraRandom) 
-    {
-        if (!extraRandom) { return baseVal; }
-        return this.getRandomBetween(baseVal, baseVal + extraRandom);
-    },
+      _classCallCheck(this, MinMaxRandomizer);
 
+      _this = _super.call(this);
+      _this.min = min;
+      _this.max = max;
+      return _this;
+    }
     /**
-     * Get random between two colors.
-     * If 'colMax' is not defined, will just return colMin or white color if not defined.
+     * Generate a random number.
      */
-    getRandomColorBetween: function(colMin, colMax) 
-    {
-        if (!colMax) { return colMin ? colMin.clone() : new THREE.Color(); }
-        return new THREE.Color(
-            this.getRandomBetween(colMin.r, colMax.r),
-            this.getRandomBetween(colMin.g, colMax.g),
-            this.getRandomBetween(colMin.b, colMax.b),
-        );
-    },
 
-    /**
-     * Get random between two vectors.
-     * If 'vecMax' is not defined, will just return vecMin or zero point if not defined.
-     */
-    getRandomVectorBetween: function(vecMin, vecMax) 
-    {
-        if (!vecMax) { return vecMin ? vecMin.clone() : new THREE.Vector3(); }
-        return new THREE.Vector3(
-            this.getRandomBetween(vecMin.x, vecMax.x),
-            this.getRandomBetween(vecMin.y, vecMax.y),
-            this.getRandomBetween(vecMin.z, vecMax.z),
-        );
-    },
 
-    /**
-     * Lerp between two colors, returning a new color without changing any of them.
-     */
-    lerpColors: function(colA, colB, alpha)
-    {
-        return colA.clone().lerp(colB, alpha);
-    },
+    _createClass(MinMaxRandomizer, [{
+      key: "generate",
+      value: function generate() {
+        return utils.getRandomBetween(this.min, this.max);
+      }
+    }]);
 
-    /**
-     * Lerp between two numbers.
-     */
-    lerp: function(x, y, alpha)
-    {
-        return (x * (1-alpha)) + (y * alpha)
-    },
+    return MinMaxRandomizer;
+  }(randomizer); // export the randomizer class
 
-    /**
-     * Get const numeric value or generate random value from randomizer.
-     */
-    randomizerOrValue: function(val)
-    {
-        return (val.generate ? val.generate() : val) || 0;
-    },
-};
-},{"./_three":1}]},{},[3])(3)
-});
+
+  var minmax_randomizer = MinMaxRandomizer;
+
+  /**
+   * Module main entry point.
+   * Author: Ronen Ness.
+   * Since: 2019.
+   */
+  var randomizers = {
+    Randomizer: randomizer,
+    BoxRandomizer: box_randomizer,
+    SphereRandomizer: sphere_randomizer,
+    ColorsRandomizer: colors_randomizer,
+    MinMaxRandomizer: minmax_randomizer
+  };
+
+  /**
+   * Module main entry point.
+   * Author: Ronen Ness.
+   * Since: 2019.
+   */
+  var partykals = {
+    ParticlesSystem: particles_system,
+    Particle: particle,
+    Emitter: emitter,
+    Utils: utils,
+    Randomizers: randomizers
+  };
+
+  return partykals;
+
+}(THREE));
