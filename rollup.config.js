@@ -34,14 +34,13 @@ export default {
         [
           "@babel/preset-env",
           {
-            // "debug": true,
             targets: {
               browsers: "last 10 versions"
             }
           }
         ]
       ],
-      extensions: [".js", ".mjs", ".html", ".svelte"]
+      extensions: [".js", ".mjs"]
     })
   ]
 
