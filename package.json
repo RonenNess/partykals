@@ -3,11 +3,11 @@
   "version": "1.0.2",
   "description": "Easy-to-use Particle Systems for THREE.js.",
   "main": "dist/partykals.js",
-  "module": "dist/partykals.module.js",
+  "module": "partykals/partykals/index.js",
   "scripts": {
     "test": "",
-    "build": "NODE_ENV=development rollup -c",
-    "dev": "NODE_ENV=development rollup -c -w",
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
     "postinstall": "npm run build"
   },
   "repository": {
