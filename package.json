@@ -3,7 +3,7 @@
   "version": "1.0.2",
   "description": "Easy-to-use Particle Systems for THREE.js.",
   "main": "dist/partykals.js",
-  "module": "partykals/partykals/index.js",
+  "module": "partykals/index.js",
   "scripts": {
     "test": "",
     "build": "rollup -c",
